@@ -3,7 +3,6 @@ import { Column, Entity, Index } from 'typeorm';
 import { Base } from 'src/lib/database/entities/base.entity';
 import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 
-import { UserRole } from '../enums/user-role.enum';
 import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
 
@@ -19,10 +18,6 @@ export class User extends Base {
   @Index()
   @Column('varchar', { unique: true })
   user_email: string;
-
-  @Index()
-  @Column('enum', { enum: UserRole })
-  user_role: UserRole;
 
   @Index()
   @Column('varchar', { unique: true, nullable: true })
