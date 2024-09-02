@@ -4,8 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { ENV_VARIABLES } from './config/env.config';
 import { corsConfig } from './config/cors.config';
+import { ENV_VARIABLES } from './config/env.config';
 import { swaggerConfig } from './config/swagger.config';
 import { DataBaseInterceptor } from './lib/http-exceptions/errors/interceptors/database.interceptor';
 import { NotFoundInterceptor } from './lib/http-exceptions/errors/interceptors/not-found.interceptor';
