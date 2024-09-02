@@ -3,23 +3,22 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 
-import { ENV_VARIABLES } from 'src/config/env.config';
-import { swaggerConfig } from 'src/config/swagger.config';
-import { DataBaseInterceptor } from 'src/lib/http-exceptions/errors/interceptors/database.interceptor';
-import { NotFoundInterceptor } from 'src/lib/http-exceptions/errors/interceptors/not-found.interceptor';
-import { BadRequestInterceptor } from 'src/lib/http-exceptions/errors/interceptors/bad-request.interceptor';
-import { UnauthorizedInterceptor } from 'src/lib/http-exceptions/errors/interceptors/unauthorized.interceptor';
-import { DataSourceInterceptor } from 'src/lib/http-exceptions/errors/interceptors/conctionDataSource.interceptor';
-
 import { AppModule } from './app.module';
-import { allowedDomains } from './config/cors.config';
+import { ENV_VARIABLES } from './config/env.config';
+import { corsConfig } from './config/cors.config';
+import { swaggerConfig } from './config/swagger.config';
+import { DataBaseInterceptor } from './lib/http-exceptions/errors/interceptors/database.interceptor';
+import { NotFoundInterceptor } from './lib/http-exceptions/errors/interceptors/not-found.interceptor';
+import { BadRequestInterceptor } from './lib/http-exceptions/errors/interceptors/bad-request.interceptor';
+import { UnauthorizedInterceptor } from './lib/http-exceptions/errors/interceptors/unauthorized.interceptor';
+import { DataSourceInterceptor } from './lib/http-exceptions/errors/interceptors/conctionDataSource.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   try {
     app.enableCors({
-      origin: allowedDomains,
+      origin: corsConfig.allowedDomains,
     });
     app.enableShutdownHooks();
     app.setGlobalPrefix('server');

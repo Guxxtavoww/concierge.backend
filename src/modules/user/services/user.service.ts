@@ -9,21 +9,21 @@ import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
 import type { PaginateUsersPayload } from '../dtos/paginate-users.dto';
 
+const base_fields: `user.${keyof User}`[] = [
+  'user.id',
+  'user.created_at',
+  'user.updated_at',
+  'user.user_name',
+  'user.user_email',
+  'user.phone_number',
+  'user.date_of_birth',
+];
+
 @Injectable()
 export class UserService {
   constructor(private readonly paginationService: PaginationService) {}
 
   private createUserQueryBuilder(selectPassword?: boolean) {
-    const base_fields: `user.${keyof User}`[] = [
-      'user.id',
-      'user.created_at',
-      'user.updated_at',
-      'user.user_name',
-      'user.user_email',
-      'user.phone_number',
-      'user.date_of_birth',
-    ];
-
     const baseQueryBuilder = userRepository
       .createQueryBuilder('user')
       .select(base_fields);
