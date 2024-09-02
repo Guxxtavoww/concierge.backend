@@ -32,7 +32,6 @@ export class AuthService {
     password,
     user_email,
     user_name,
-    user_cpf_number,
     phone_number,
     date_of_birth,
   }: CreateUserPayload): Promise<AccessDTO> {
@@ -40,7 +39,6 @@ export class AuthService {
       user_email,
       user_name,
       password,
-      user_cpf_number,
       phone_number,
       date_of_birth,
     });
@@ -78,8 +76,8 @@ export class AuthService {
         created_at: user.created_at,
         updated_at: user.updated_at,
         phone_number: user.phone_number,
-        user_cpf_number: user.user_cpf_number,
         date_of_birth: user.date_of_birth,
+        user_role: user.user_role
       },
       access_token,
     };

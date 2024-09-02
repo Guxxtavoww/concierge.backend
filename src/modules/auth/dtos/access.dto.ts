@@ -20,10 +20,7 @@ export class UserDTO {
   phone_number: NullableValue<string>;
 
   @ApiProperty()
-  user_cpf_number: string;
-
-  @ApiProperty()
-  date_of_birth: string;
+  date_of_birth: NullableValue<string>;
 }
 
 export class AccessDTO {

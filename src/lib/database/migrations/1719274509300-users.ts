@@ -1,7 +1,5 @@
 import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
 
-import { user_roles } from 'src/modules/user/enums/user-role.enum';
-
 import { baseColumns } from '../entities/base-columns';
 
 export class Users1719274509300 implements MigrationInterface {
@@ -34,11 +32,6 @@ export class Users1719274509300 implements MigrationInterface {
             type: 'date',
             isNullable: true,
           },
-          {
-            name: 'user_role',
-            type: 'enum',
-            enum: user_roles,
-          },
         ],
       }),
     );
@@ -67,21 +60,12 @@ export class Users1719274509300 implements MigrationInterface {
         isUnique: true,
       }),
     );
-
-    await queryRunner.createIndex(
-      'users',
-      new TableIndex({
-        name: 'IDX_USER_ROLE',
-        columnNames: ['user_role'],
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropIndex('users', 'IDX_USER_NAME');
     await queryRunner.dropIndex('users', 'IDX_USER_EMAIL');
     await queryRunner.dropIndex('users', 'IDX_PHONE_NUMBER');
-    await queryRunner.dropIndex('users', 'IDX_USER_ROLE');
     await queryRunner.dropTable('users');
   }
 }
