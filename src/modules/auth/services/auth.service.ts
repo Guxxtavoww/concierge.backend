@@ -77,7 +77,6 @@ export class AuthService {
         updated_at: user.updated_at,
         phone_number: user.phone_number,
         date_of_birth: user.date_of_birth,
-        user_role: user.user_role
       },
       access_token,
     };
