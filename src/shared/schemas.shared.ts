@@ -100,5 +100,7 @@ export const optionalBooleanStringSchema =
 export const optionalOrderParamSchema =
   createNullableTransform(orderParamSchema);
 
+export type OrderBy = z.infer<typeof optionalOrderParamSchema>;
+
 export const optionalGenderStringSchema =
   createNullableTransform(genderStringSchema);

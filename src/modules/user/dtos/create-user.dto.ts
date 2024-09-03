@@ -29,7 +29,7 @@ export class CreateUserDTO extends createZodDto(createUserSchema) {
   @ApiPropertyOptional({ type: String, description: 'Optional password' })
   password: string;
 
-  @ApiPropertyOptional({ type: String, example: '+919367788755' })
+  @ApiPropertyOptional({ type: String, example: '(11) 11111-1111' })
   phone_number?: string;
 
   @ApiProperty({ type: String, example: '2003-12-09' })

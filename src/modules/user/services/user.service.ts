@@ -9,7 +9,9 @@ import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
 import type { PaginateUsersPayload } from '../dtos/paginate-users.dto';
 
-const base_fields: `user.${keyof User}`[] = [
+const alias = 'user';
+
+const base_fields: `${typeof alias}.${keyof User}`[] = [
   'user.id',
   'user.created_at',
   'user.updated_at',
@@ -25,11 +27,11 @@ export class UserService {
 
   private createUserQueryBuilder(selectPassword?: boolean) {
     const baseQueryBuilder = userRepository
-      .createQueryBuilder('user')
+      .createQueryBuilder(alias)
       .select(base_fields);
 
     if (selectPassword) {
-      baseQueryBuilder.select([...base_fields, 'user.hashed_password']);
+      baseQueryBuilder.select([...base_fields, `${alias}.hashed_password`]);
     }
 
     return baseQueryBuilder;
@@ -43,17 +45,16 @@ export class UserService {
     user_name,
   }: PaginateUsersPayload) {
     const queryBuilder = this.createUserQueryBuilder().where(
-      user_name ? 'LOWER(user.user_name) LIKE :user_name' : '1=1',
+      user_name ? `LOWER(${alias}.user_name) LIKE :user_name` : '1=1',
       {
         user_name: `%${user_name}%`,
       },
     );
 
-    if (order_by_created_at)
-      queryBuilder.orderBy('user.created_at', order_by_created_at);
-
-    if (order_by_updated_at)
-      queryBuilder.orderBy('user.updated_at', order_by_updated_at);
+    this.paginationService.applyOrderByFilters(alias, queryBuilder, {
+      order_by_created_at,
+      order_by_updated_at,
+    });
 
     return this.paginationService.paginateWithQueryBuilder(queryBuilder, {
       limit,
@@ -63,24 +64,20 @@ export class UserService {
 
   async getUserByEmail(user_email: string, selectPassword = true) {
     const user = await this.createUserQueryBuilder(selectPassword)
-      .where('user.user_email = :user_email', { user_email })
+      .where(`${alias}.user_email = :user_email`, { user_email })
       .getOne();
 
-    if (!user) {
-      throw new NotFoundError('Email is not valid!');
-    }
+    if (!user) throw new NotFoundError('Email is not valid!');
 
     return user;
   }
 
   async getUserById(id: string, selectPassword?: boolean) {
     const user = await this.createUserQueryBuilder(selectPassword)
-      .where('user.id = :id', { id })
+      .where(`'${alias}.id = :id'`, { id })
       .getOne();
 
-    if (!user) {
-      throw new NotFoundError('User not found!');
-    }
+    if (!user) throw new NotFoundError('User not found!');
 
     return user;
   }
