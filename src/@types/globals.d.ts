@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type { IPaginationOptions } from 'nestjs-typeorm-paginate';
 
+import type { EnvType } from 'src/config/env.config';
+
 declare global {
   namespace NodeJS {
     interface ProcessEnv extends EnvType {}
