@@ -1,16 +1,23 @@
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 
+import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { DataBaseInterceptorDecorator } from 'src/shared/decorators/database-interceptor.decorator';
 
 import { CondominiumService } from '../services/condominium.service';
+import { UpdateCondominiumDTO } from '../dtos/update-condominium.dto';
 import { CreateCondominiumDTO } from '../dtos/create-condominium.dto';
 
 @ApiTags('condominium')
 @Controller('condominium')
 export class CondominiumController {
   constructor(private readonly condominiumService: CondominiumService) {}
+
+  @Get(':id')
+  getOne(@UuidParam('id') id: string) {
+    return this.condominiumService.getCondominiumById(id);
+  }
 
   @DataBaseInterceptorDecorator()
   @Post()
@@ -19,5 +26,28 @@ export class CondominiumController {
     @DecodedToken() decoded_token: DecodedTokenType,
   ) {
     return this.condominiumService.createCondominium(body, decoded_token.id);
+  }
+
+  @DataBaseInterceptorDecorator()
+  @Put(':id')
+  update(
+    @UuidParam('id') id: string,
+    @Body() body: UpdateCondominiumDTO,
+    @DecodedToken() decoded_token: DecodedTokenType,
+  ) {
+    return this.condominiumService.updateCondominium(
+      id,
+      body,
+      decoded_token.id,
+    );
+  }
+
+  @DataBaseInterceptorDecorator()
+  @Delete(':id')
+  delete(
+    @UuidParam('id') id: string,
+    @DecodedToken() decoded_token: DecodedTokenType,
+  ) {
+    return this.condominiumService.deleteCondominium(id, decoded_token.id);
   }
 }
