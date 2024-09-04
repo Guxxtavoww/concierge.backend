@@ -24,7 +24,7 @@ export class Condominium extends Base {
    * A brief description of the condominium.
    * This field is optional.
    */
-  @Column('text', { nullable: true })
+  @Column('varchar', { nullable: true })
   description: NullableValue<string>;
 
   /**
