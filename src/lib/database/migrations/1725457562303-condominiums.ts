@@ -18,6 +18,7 @@ export class Condominiums1725457562303 implements MigrationInterface {
           {
             name: 'condominium_name',
             type: 'varchar',
+            isUnique: true,
           },
           {
             name: 'description',

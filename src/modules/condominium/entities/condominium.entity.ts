@@ -17,7 +17,7 @@ export class Condominium extends Base {
    * The name of the condominium.
    */
   @Index()
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   condominium_name: string;
 
   /**
