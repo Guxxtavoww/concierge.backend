@@ -4,6 +4,7 @@ import { Base } from 'src/lib/database/entities/base.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
+import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
 
 /**
  * Represents a condominium entity.
@@ -126,6 +127,14 @@ export class Condominium extends Base {
   manager: User;
 
   static create(payload: CreateCondominiumType & { manager_id: string }) {
+    const item = new Condominium();
+
+    Object.assign(item, payload);
+
+    return item;
+  }
+
+  static update(payload: UpdateCondominiumType) {
     const item = new Condominium();
 
     Object.assign(item, payload);

@@ -9,6 +9,7 @@ import {
   Condominium,
 } from '../entities/condominium.entity';
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
+import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
 import { condominiumRepository } from '../repositories/condominium.repository';
 
 @Injectable()
@@ -41,6 +42,20 @@ export class CondominiumService {
     const condominiumToCreate = Condominium.create({ ...payload, manager_id });
 
     return condominiumRepository.save(condominiumToCreate);
+  }
+
+  async updateCondominium(
+    id: string,
+    payload: UpdateCondominiumType,
+    logged_in_user_id: string,
+  ) {
+    const condominiumToUpdate = await this.getCondominiumById(id);
+
+    this.checkPermission(condominiumToUpdate.manager_id, logged_in_user_id);
+
+    const data = Condominium.update(payload);
+
+    return condominiumRepository.update(condominiumToUpdate.id, data);
   }
 
   async deleteCondominium(id: string, logged_in_user_id: string) {
