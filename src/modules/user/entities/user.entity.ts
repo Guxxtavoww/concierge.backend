@@ -1,10 +1,11 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { Base } from 'src/lib/database/entities/base.entity';
 import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 
 import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
+import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
 @Entity('users')
 export class User extends Base {
@@ -25,6 +26,9 @@ export class User extends Base {
 
   @Column('date', { nullable: true })
   date_of_birth: NullableValue<string>;
+
+  @OneToMany(() => Condominium, (c) => c.manager)
+  condominiums: Condominium[];
 
   private static async handleCreateHashedPassword(
     password: string,
@@ -80,3 +84,15 @@ export class User extends Base {
     return userItem;
   }
 }
+
+export const alias = 'user';
+
+export const base_fields: `${typeof alias}.${keyof User}`[] = [
+  'user.id',
+  'user.created_at',
+  'user.updated_at',
+  'user.user_name',
+  'user.user_email',
+  'user.phone_number',
+  'user.date_of_birth',
+];

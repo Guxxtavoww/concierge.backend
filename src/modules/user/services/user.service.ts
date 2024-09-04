@@ -3,23 +3,11 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
 
-import { User } from '../entities/user.entity';
 import { userRepository } from '../repositories/user.repository';
 import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
+import { User, alias, base_fields } from '../entities/user.entity';
 import type { PaginateUsersPayload } from '../dtos/paginate-users.dto';
-
-const alias = 'user';
-
-const base_fields: `${typeof alias}.${keyof User}`[] = [
-  'user.id',
-  'user.created_at',
-  'user.updated_at',
-  'user.user_name',
-  'user.user_email',
-  'user.phone_number',
-  'user.date_of_birth',
-];
 
 @Injectable()
 export class UserService {

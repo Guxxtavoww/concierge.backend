@@ -19,6 +19,8 @@ export const floatNumberSchema = numberSchema.refine((val) => val % 1 !== 0, {
   message: 'Value must be float',
 });
 
+export const booleanSchema = z.boolean();
+
 export const stringToNumberSchema = stringSchema
   .refine((value) => !Number.isNaN(+value))
   .transform(Number);
@@ -96,6 +98,8 @@ export const optionalDateStringSchema =
 
 export const optionalBooleanStringSchema =
   createNullableTransform(booleanStringSchema);
+
+export const optionalBooleanSchema = createNullableTransform(booleanSchema);
 
 export const optionalOrderParamSchema =
   createNullableTransform(orderParamSchema);
