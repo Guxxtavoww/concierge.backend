@@ -28,7 +28,9 @@ export const createCondominiumSchema = z.object({
   has_gym: booleanToFalseSchema,
   max_tenants_amount: integerNumberSchema,
   total_units: optionalIntegerNumberSchema,
-  year_built: integerNumberSchema,
+  year_built: integerNumberSchema.refine((v) => v < new Date().getFullYear(), {
+    message: 'Insert a valid year',
+  }),
 });
 
 export type CreateCondominiumType = z.infer<typeof createCondominiumSchema>;

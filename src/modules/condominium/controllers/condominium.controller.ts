@@ -1,18 +1,34 @@
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
+import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
 import { DataBaseInterceptorDecorator } from 'src/shared/decorators/database-interceptor.decorator';
 
 import { CondominiumService } from '../services/condominium.service';
 import { UpdateCondominiumDTO } from '../dtos/update-condominium.dto';
 import { CreateCondominiumDTO } from '../dtos/create-condominium.dto';
+import { PaginateCondominiumsDTO } from '../dtos/paginate-condominiums.dto';
 
 @ApiTags('condominium')
 @Controller('condominium')
 export class CondominiumController {
   constructor(private readonly condominiumService: CondominiumService) {}
+
+  @Get('paginate')
+  @ApiPaginationQuery()
+  paginate(@Query() querys: PaginateCondominiumsDTO) {
+    return this.condominiumService.paginateCondominiums(querys);
+  }
 
   @Get(':id')
   getOne(@UuidParam('id') id: string) {

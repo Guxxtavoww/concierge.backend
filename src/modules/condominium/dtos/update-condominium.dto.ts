@@ -7,7 +7,9 @@ import {
   optionalBooleanSchema,
   optionalFloatNumberSchema,
   optionalIntegerNumberSchema,
+  optionalStringToIntegerSchema,
 } from 'src/shared/schemas.shared';
+import { isNullableValue } from 'src/utils/is-nullable-value.util';
 
 export const updateCondominiumSchema = z.object({
   condominium_name: optionalStringSchema,
@@ -24,7 +26,9 @@ export const updateCondominiumSchema = z.object({
   has_gym: optionalBooleanSchema,
   max_tenants_amount: optionalIntegerNumberSchema,
   total_units: optionalIntegerNumberSchema,
-  year_built: optionalIntegerNumberSchema,
+  year_built: optionalStringToIntegerSchema.refine((v) =>
+    !isNullableValue(v) ? v < new Date().getFullYear() : true,
+  ),
 });
 
 export type UpdateCondominiumType = z.infer<typeof updateCondominiumSchema>;

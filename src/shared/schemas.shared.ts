@@ -25,6 +25,32 @@ export const stringToNumberSchema = stringSchema
   .refine((value) => !Number.isNaN(+value))
   .transform(Number);
 
+export const stringToIntegerSchema = stringSchema
+  .refine(
+    (str) => {
+      const numberfyedValue = Number(str);
+
+      if (Number.isNaN(numberfyedValue)) return false;
+
+      return Number.isInteger(numberfyedValue);
+    },
+    { message: 'Value must be int' },
+  )
+  .transform(Number);
+
+export const stringToFloatSchema = stringSchema
+  .refine(
+    (str) => {
+      const numberfyedValue = Number(str);
+
+      if (Number.isNaN(numberfyedValue)) return false;
+
+      return !Number.isInteger(numberfyedValue);
+    },
+    { message: 'Value must be float' },
+  )
+  .transform(Number);
+
 export const paginationParamSchema = z
   .union([stringSchema, integerNumberSchema])
   .refine((value) => !Number.isNaN(+value))
@@ -108,3 +134,10 @@ export type OrderBy = z.infer<typeof optionalOrderParamSchema>;
 
 export const optionalGenderStringSchema =
   createNullableTransform(genderStringSchema);
+
+export const optionalStringToFloatSchema =
+  createNullableTransform(stringToFloatSchema);
+
+export const optionalStringToIntegerSchema = createNullableTransform(
+  stringToIntegerSchema,
+);
