@@ -15,9 +15,12 @@ export const uuidSchema = stringSchema.uuid();
 export const orderParamSchema = z.enum(['ASC', 'DESC']);
 export const genderStringSchema = z.enum(['M', 'F']);
 export const integerNumberSchema = numberSchema.int();
-export const floatNumberSchema = numberSchema.refine((val) => val % 1 !== 0, {
-  message: 'Value must be float',
-});
+export const floatNumberSchema = numberSchema.refine(
+  (val) => !Number.isInteger(val),
+  {
+    message: 'Value must be float',
+  },
+);
 
 export const booleanSchema = z.boolean();
 
