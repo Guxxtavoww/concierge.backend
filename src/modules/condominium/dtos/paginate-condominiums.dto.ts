@@ -7,6 +7,7 @@ import {
   optionalBooleanStringSchema,
   optionalStringToFloatSchema,
   optionalStringToIntegerSchema,
+  optionalStringSchema,
 } from 'src/shared/schemas.shared';
 import { isNullableValue } from 'src/utils/is-nullable-value.util';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
@@ -15,8 +16,8 @@ export const paginateCondominiumsSchema = createPaginationSchema({
   condominium_name: optionalStringSchemaToLowerCase,
   description: optionalStringSchemaToLowerCase,
   address: optionalStringSchemaToLowerCase,
-  city: optionalStringSchemaToLowerCase,
-  state: optionalStringSchemaToLowerCase,
+  city: optionalStringSchema,
+  state: optionalStringSchema,
   monthly_fee: optionalStringToFloatSchema,
   has_grill: optionalBooleanStringSchema,
   has_pool: optionalBooleanStringSchema,
