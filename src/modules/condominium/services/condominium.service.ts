@@ -24,7 +24,7 @@ export class CondominiumService {
 
   private checkPermission(manager_id: string, logged_in_user_id: string) {
     if (manager_id !== logged_in_user_id)
-      throw new ForbiddenException('Not Allowed');
+      throw new ForbiddenException('Not Allowed to change this condominuim');
   }
 
   async paginateCondominiums({
