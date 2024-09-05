@@ -5,6 +5,7 @@ import {
   stringSchema,
   optionalStringSchema,
   optionalStringToNumberSchema,
+  urlStringSchema,
 } from 'src/shared/schemas.shared';
 
 export const envSchema = z.object({
@@ -13,9 +14,9 @@ export const envSchema = z.object({
   DB_PORT: optionalStringToNumberSchema.default('5432'),
   DATABASE_HOST: optionalStringSchema.default('localhost'),
   DB_USER: stringSchema,
-  JWT_ISSUER: stringSchema,
   JWT_SECRET: stringSchema,
-  JWT_AUDIENCE: stringSchema,
+  JWT_ISSUER: urlStringSchema,
+  JWT_AUDIENCE: urlStringSchema,
   JWT_EXPIRES_IN: stringSchema,
   PORT: optionalStringToNumberSchema.default('5000'),
   WEBSOCKET_PORT: optionalStringToNumberSchema.default('80'),
