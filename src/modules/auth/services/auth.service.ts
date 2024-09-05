@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { ENV_VARIABLES } from 'src/config/env.config';
+import { jwtConstants } from 'src/config/jwt.config';
 import { validatePassword } from 'src/utils/password.utils';
 import { User } from 'src/modules/user/entities/user.entity';
 import { UserService } from 'src/modules/user/services/user.service';
@@ -83,10 +83,7 @@ export class AuthService {
   }
 
   async getAccessToken(jwtPayload: IJwtPayload) {
-    const access_token = await this.jwtService.signAsync(jwtPayload, {
-      secret: ENV_VARIABLES.JWT_SECRET,
-      expiresIn: ENV_VARIABLES.JWT_EXPIRES_IN,
-    });
+    const access_token = await this.jwtService.signAsync(jwtPayload, jwtConstants);
 
     return {
       access_token,
