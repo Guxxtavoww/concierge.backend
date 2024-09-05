@@ -23,7 +23,7 @@ export class CreateUserDTO extends createZodDto(createUserSchema) {
   @ApiProperty({ type: String, description: 'User name' })
   user_name: string;
 
-  @ApiProperty({ type: String, description: 'User email' })
+  @ApiProperty({ type: String, description: 'User email', example: 'test@gmail.com' })
   user_email: string;
 
   @ApiPropertyOptional({ type: String, description: 'Optional password' })
