@@ -15,12 +15,12 @@ export class UserService {
   constructor(private readonly paginationService: PaginationService) {}
 
   private createUserQueryBuilder(selectPassword?: boolean) {
-    const baseQueryBuilder = userRepository
-      .createQueryBuilder(alias)
-      .select(base_fields);
+    const baseQueryBuilder = userRepository.createQueryBuilder(alias);
 
     if (selectPassword) {
       baseQueryBuilder.select([...base_fields, `${alias}.hashed_password`]);
+    } else {
+      baseQueryBuilder.select(base_fields);
     }
 
     return baseQueryBuilder;
