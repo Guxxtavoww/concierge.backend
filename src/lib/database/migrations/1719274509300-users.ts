@@ -57,7 +57,6 @@ export class Users1719274509300 implements MigrationInterface {
       new TableIndex({
         name: 'IDX_PHONE_NUMBER',
         columnNames: ['phone_number'],
-        isUnique: true,
       }),
     );
   }

@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 
+import { applyQueryFilters } from 'src/utils/apply-query-filters.util';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
 
@@ -32,11 +33,13 @@ export class UserService {
     order_by_updated_at,
     user_name,
   }: PaginateUsersPayload) {
-    const queryBuilder = this.createUserQueryBuilder().where(
-      user_name ? `LOWER(${alias}.user_name) LIKE :user_name` : '1=1',
-      {
-        user_name: `%${user_name}%`,
-      },
+    const queryBuilder = this.createUserQueryBuilder();
+
+    applyQueryFilters(
+      alias,
+      queryBuilder,
+      { user_name },
+      { user_name: 'LIKE' },
     );
 
     this.paginationService.applyOrderByFilters(alias, queryBuilder, {
