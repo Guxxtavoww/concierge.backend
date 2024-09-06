@@ -42,19 +42,4 @@ export class PaginationService {
       page,
     });
   }
-
-  public applyOrderByFilters<T extends string, E extends ObjectLiteral>(
-    alias: T,
-    queryBuilder: SelectQueryBuilder<E>,
-    {
-      order_by_created_at,
-      order_by_updated_at,
-    }: { order_by_created_at: OrderBy; order_by_updated_at: OrderBy },
-  ) {
-    if (order_by_created_at)
-      queryBuilder.orderBy(`${alias}.created_at`, order_by_created_at);
-
-    if (order_by_updated_at)
-      queryBuilder.orderBy(`${alias}.updated_at`, order_by_updated_at);
-  }
 }

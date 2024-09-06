@@ -1,6 +1,9 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 
-import { applyQueryFilters } from 'src/utils/apply-query-filters.util';
+import {
+  applyQueryFilters,
+  applyOrderByFilters,
+} from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
 
@@ -53,7 +56,7 @@ export class CondominiumService {
       year_built: '=',
     });
 
-    this.paginationService.applyOrderByFilters(alias, queryBuilder, {
+    applyOrderByFilters(alias, queryBuilder, {
       order_by_created_at,
       order_by_updated_at,
     });

@@ -1,5 +1,7 @@
 import type { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
+import type { OrderBy } from 'src/shared/schemas.shared';
+
 import { isNullableValue } from './is-nullable-value.util';
 
 export type FilterTypes = 'LIKE' | '=' | '<' | '>' | '<=' | '>=';
@@ -47,4 +49,19 @@ export function applyQueryFilters<
 
     index++;
   }
+}
+
+export function applyOrderByFilters<T extends string, E extends ObjectLiteral>(
+  alias: T,
+  queryBuilder: SelectQueryBuilder<E>,
+  {
+    order_by_created_at,
+    order_by_updated_at,
+  }: { order_by_created_at: OrderBy; order_by_updated_at: OrderBy },
+) {
+  if (order_by_created_at)
+    queryBuilder.orderBy(`${alias}.created_at`, order_by_created_at);
+
+  if (order_by_updated_at)
+    queryBuilder.orderBy(`${alias}.updated_at`, order_by_updated_at);
 }
