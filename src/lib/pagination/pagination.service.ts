@@ -12,8 +12,6 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 
-import type { OrderBy } from 'src/shared/schemas.shared';
-
 @Injectable()
 export class PaginationService {
   public async paginate<T extends ObjectLiteral>(
