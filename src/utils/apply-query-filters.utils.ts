@@ -51,13 +51,15 @@ export function applyQueryFilters<
   }
 }
 
+export interface OrderByParams {
+  order_by_created_at: OrderBy;
+  order_by_updated_at: OrderBy;
+}
+
 export function applyOrderByFilters<T extends string, E extends ObjectLiteral>(
   alias: T,
   queryBuilder: SelectQueryBuilder<E>,
-  {
-    order_by_created_at,
-    order_by_updated_at,
-  }: { order_by_created_at: OrderBy; order_by_updated_at: OrderBy },
+  { order_by_created_at, order_by_updated_at }: OrderByParams,
 ) {
   if (order_by_created_at)
     queryBuilder.orderBy(`${alias}.created_at`, order_by_created_at);
