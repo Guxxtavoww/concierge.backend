@@ -4,8 +4,8 @@ import { z } from 'nestjs-zod/z';
 import {
   stringSchema,
   optionalStringSchema,
+  optionalUrlStringSchema,
   optionalStringToNumberSchema,
-  urlStringSchema,
 } from 'src/shared/schemas.shared';
 
 export const envSchema = z.object({
@@ -15,8 +15,8 @@ export const envSchema = z.object({
   DATABASE_HOST: optionalStringSchema.default('localhost'),
   DB_USER: stringSchema,
   JWT_SECRET: stringSchema,
-  JWT_ISSUER: urlStringSchema,
-  JWT_AUDIENCE: urlStringSchema,
+  JWT_ISSUER: optionalUrlStringSchema,
+  JWT_AUDIENCE: optionalUrlStringSchema,
   JWT_EXPIRES_IN: stringSchema,
   PORT: optionalStringToNumberSchema.default('5000'),
   WEBSOCKET_PORT: optionalStringToNumberSchema.default('80'),
