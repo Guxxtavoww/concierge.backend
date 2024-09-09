@@ -1,11 +1,11 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { Base } from 'src/lib/database/entities/base.entity';
+import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 
 import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
-import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
 @Entity('users')
 export class User extends Base {

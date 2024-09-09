@@ -1,4 +1,3 @@
-import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -8,6 +7,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
