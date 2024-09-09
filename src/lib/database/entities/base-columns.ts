@@ -21,3 +21,25 @@ export const baseColumns = [
     isNullable: true,
   },
 ] satisfies TableColumnOptions[];
+
+export const baseColumnsWithIncrementalId = [
+  {
+    name: 'id',
+    type: 'int',
+    isPrimary: true,
+    isGenerated: true,
+    generationStrategy: 'increment',
+  },
+  {
+    name: 'created_at',
+    type: 'timestamp',
+    default: 'CURRENT_TIMESTAMP',
+  },
+  {
+    name: 'updated_at',
+    type: 'timestamp',
+    default: null,
+    onUpdate: 'CURRENT_TIMESTAMP',
+    isNullable: true,
+  },
+] satisfies TableColumnOptions[];
