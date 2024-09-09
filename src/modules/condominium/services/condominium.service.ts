@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 
 import {
   applyQueryFilters,
@@ -6,6 +11,8 @@ import {
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
+import { alias as memberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
+import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
 import {
   alias,
@@ -19,7 +26,11 @@ import type { PaginateCondominiumsType } from '../dtos/paginate-condominiums.dto
 
 @Injectable()
 export class CondominiumService {
-  constructor(private readonly paginationService: PaginationService) {}
+  constructor(
+    private readonly paginationService: PaginationService,
+    @Inject(forwardRef(() => CondominiumMemberService))
+    private readonly condominiumMemberService: CondominiumMemberService,
+  ) {}
 
   private createQueryBuilder() {
     return condominiumRepository.createQueryBuilder(alias).select(base_fields);
@@ -30,13 +41,47 @@ export class CondominiumService {
       throw new ForbiddenException('Not Allowed to change this condominuim');
   }
 
-  async paginateCondominiums({
-    limit,
-    page,
-    order_by_created_at,
-    order_by_updated_at,
-    ...filters
-  }: PaginateCondominiumsType) {
+  private async addIsMemberToCondominiums(
+    condominiums: Condominium[],
+    logged_in_user_id: string,
+  ) {
+    if (!condominiums.length) return [];
+
+    const condominiumsIds = new Array(
+      ...new Set(condominiums.map((c) => c.id)),
+    );
+
+    const memberships = await this.condominiumMemberService
+      .createPerfomaticCondominiumMemberQueryBuilder()
+      .where(`${memberAlias}.condominium_id IN (:...condominiumsIds)`, {
+        condominiumsIds,
+      })
+      .andWhere(`${memberAlias}.user_id = :logged_in_user_id`, {
+        logged_in_user_id,
+      })
+      .take(condominiums.length)
+      .getMany();
+
+    const membershipsIdsSet = new Set(
+      memberships.map((membership) => membership.condominium_id),
+    );
+
+    return condominiums.map((condominium) => ({
+      ...condominium,
+      is_current_user_member: membershipsIdsSet.has(condominium.id),
+    }));
+  }
+
+  async paginateCondominiums(
+    {
+      limit,
+      page,
+      order_by_created_at,
+      order_by_updated_at,
+      ...filters
+    }: PaginateCondominiumsType,
+    logged_in_user_id: string,
+  ) {
     const queryBuilder = this.createQueryBuilder();
 
     applyQueryFilters(alias, queryBuilder, filters, {
@@ -61,10 +106,16 @@ export class CondominiumService {
       order_by_updated_at,
     });
 
-    return this.paginationService.paginateWithQueryBuilder(queryBuilder, {
-      limit,
-      page,
-    });
+    const { items, meta } =
+      await this.paginationService.paginateWithQueryBuilder(queryBuilder, {
+        limit,
+        page,
+      });
+
+    return {
+      items: await this.addIsMemberToCondominiums(items, logged_in_user_id),
+      meta,
+    };
   }
 
   async getCondominiumById(id: string): Promise<Condominium> {

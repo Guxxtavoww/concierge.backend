@@ -70,6 +70,10 @@ export class Condominiums1725457562303 implements MigrationInterface {
             type: 'boolean',
           },
           {
+            name: 'has_garden',
+            type: 'boolean',
+          },
+          {
             name: 'max_tenants_amount',
             type: 'int',
           },

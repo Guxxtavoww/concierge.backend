@@ -6,6 +6,7 @@ import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-reques
 
 import type { CreateUserPayload } from '../dtos/create-user.dto';
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
+import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 @Entity('users')
 export class User extends Base {
@@ -29,6 +30,9 @@ export class User extends Base {
 
   @OneToMany(() => Condominium, (c) => c.manager)
   condominiums: Condominium[];
+
+  @OneToMany(() => CondominiumMember, (member) => member.user)
+  memberships: CondominiumMember[];
 
   private static async handleCreateHashedPassword(
     password: string,

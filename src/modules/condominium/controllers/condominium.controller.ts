@@ -26,8 +26,14 @@ export class CondominiumController {
 
   @Get('paginate')
   @ApiPaginationQuery()
-  paginate(@Query() querys: PaginateCondominiumsDTO) {
-    return this.condominiumService.paginateCondominiums(querys);
+  paginate(
+    @Query() querys: PaginateCondominiumsDTO,
+    @DecodedToken() decoded_token: DecodedTokenType,
+  ) {
+    return this.condominiumService.paginateCondominiums(
+      querys,
+      decoded_token.id,
+    );
   }
 
   @Get(':id')

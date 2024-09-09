@@ -26,6 +26,7 @@ export const createCondominiumSchema = z.object({
   has_park: booleanToFalseSchema,
   has_security: booleanToFalseSchema,
   has_gym: booleanToFalseSchema,
+  has_garden: booleanToFalseSchema,
   max_tenants_amount: integerNumberSchema,
   total_units: optionalIntegerNumberSchema,
   year_built: integerNumberSchema.refine((v) => v < new Date().getFullYear(), {
@@ -70,6 +71,12 @@ export class CreateCondominiumDTO extends createZodDto(
     default: false,
   })
   has_grill: boolean;
+
+  @ApiProperty({
+    description: 'Indicates whether the condominium has a grill area.',
+    default: false,
+  })
+  has_garden: boolean;
 
   @ApiProperty({
     description: 'Indicates whether the condominium has a swimming pool.',

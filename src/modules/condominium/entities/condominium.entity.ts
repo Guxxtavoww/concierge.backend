@@ -1,10 +1,18 @@
-import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 
 import { Base } from 'src/lib/database/entities/base.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
 import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
+import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 /**
  * Represents a condominium entity.
@@ -93,6 +101,12 @@ export class Condominium extends Base {
   has_gym: boolean;
 
   /**
+   * Indicates whether the condominium has gym services.
+   */
+  @Column('boolean')
+  has_garden: boolean;
+
+  /**
    * The maximum number of tenants allowed in the condominium.
    */
   @Column('int')
@@ -125,6 +139,9 @@ export class Condominium extends Base {
   @OneToOne(() => User)
   @JoinColumn({ name: 'manager_id' })
   manager: User;
+
+  @OneToMany(() => CondominiumMember, (c) => c.condominium)
+  members: CondominiumMember[];
 
   static create(payload: CreateCondominiumType & { manager_id: string }) {
     const item = new Condominium();
