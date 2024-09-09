@@ -59,7 +59,7 @@ export class CondominiumService {
       .andWhere(`${memberAlias}.user_id = :logged_in_user_id`, {
         logged_in_user_id,
       })
-      .take(condominiums.length)
+      .take(condominiumsIds.length)
       .getMany();
 
     const membershipsIdsSet = new Set(
