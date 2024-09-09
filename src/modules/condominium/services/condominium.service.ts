@@ -134,7 +134,15 @@ export class CondominiumService {
   ): Promise<Condominium> {
     const condominiumToCreate = Condominium.create({ ...payload, manager_id });
 
-    return condominiumRepository.save(condominiumToCreate);
+    const savedCondominium =
+      await condominiumRepository.save(condominiumToCreate);
+
+    await this.condominiumMemberService.createCondominiumMember(
+      { condominium_id: savedCondominium.id, is_tenant: true },
+      savedCondominium.manager_id,
+    );
+
+    return savedCondominium;
   }
 
   async updateCondominium(

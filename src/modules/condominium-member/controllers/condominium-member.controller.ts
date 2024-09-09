@@ -3,6 +3,7 @@ import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
+import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
 
 import { CondominiumMemberService } from '../services/condominium-member.service';
 import { CreateCondominiumMemberDTO } from '../dtos/create-condominium-member.dto';
@@ -15,6 +16,7 @@ export class CondominiumMemberController {
     private readonly condominiumMemberService: CondominiumMemberService,
   ) {}
 
+  @ApiPaginationQuery()
   @Get('paginate')
   paginate(@Query() querys: PaginateCondominiumsMembersDTO) {
     return this.condominiumMemberService.paginateMemberships(querys);
