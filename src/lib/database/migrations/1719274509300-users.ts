@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import {
+  Table,
+  TableIndex,
+  type QueryRunner,
+  type MigrationInterface,
+} from 'typeorm';
 
 import { baseColumns } from '../entities/base-columns';
 

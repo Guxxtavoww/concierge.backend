@@ -1,10 +1,19 @@
-import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  ManyToOne,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 
 import { Base } from 'src/lib/database/entities/base.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
-import type { CreateCondominiumMemberPayload } from '../dtos/create-condominium-member.dto';
+import { Profession } from './profession.entity';
+import type { CreateCondominiumMemberPayload } from '../dtos/condominium/create-condominium-member.dto';
 
 @Entity('condominiums-members')
 export class CondominiumMember extends Base {
@@ -16,7 +25,6 @@ export class CondominiumMember extends Base {
   @Column('uuid')
   user_id: string;
 
-  @Index()
   @Column('boolean', { default: false })
   is_tenant: boolean;
 
@@ -27,6 +35,14 @@ export class CondominiumMember extends Base {
   @ManyToOne(() => Condominium, (c) => c.members)
   @JoinColumn({ name: 'condominium_id' })
   condominium: Condominium;
+
+  @ManyToMany(() => Profession, (profession) => profession.members)
+  @JoinTable({
+    name: 'condominium_member_professions', // Nome da tabela intermediária
+    joinColumn: { name: 'condominium_member_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'profession_id', referencedColumnName: 'id' },
+  })
+  professions: Profession[];
 
   static create(payload: CreateCondominiumMemberPayload & { user_id: string }) {
     const item = new CondominiumMember();

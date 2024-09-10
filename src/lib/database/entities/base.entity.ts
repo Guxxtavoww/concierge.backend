@@ -23,7 +23,7 @@ export class Base {
 @Entity()
 export class BaseWithIncrementalId {
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: string;

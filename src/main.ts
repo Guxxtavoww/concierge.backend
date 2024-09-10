@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { corsConfig } from './config/cors.config';
@@ -34,24 +33,17 @@ async function bootstrap() {
     app.useGlobalInterceptors(new NotFoundInterceptor());
     app.useGlobalInterceptors(new DataBaseInterceptor());
 
-    /**
-     * -----------------------------------------------------------------------------
-     * Swagger
-     * -----------------------------------------------------------------------------
-     */
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    if (ENV_VARIABLES.ENV === 'dev') {
+      const { SwaggerModule } = await import('@nestjs/swagger');
+      const document = SwaggerModule.createDocument(app, swaggerConfig);
 
-    /**
-     * -----------------------------------------------------------------------------
-     * Swagger documents
-     * -----------------------------------------------------------------------------
-     */
-    fs.writeFileSync(
-      'swagger-document.json',
-      JSON.stringify(document, null, 2),
-    );
+      fs.writeFileSync(
+        'swagger-document.json',
+        JSON.stringify(document, null, 2),
+      );
 
-    SwaggerModule.setup('server', app, document);
+      SwaggerModule.setup('server', app, document);
+    }
 
     await app.listen(ENV_VARIABLES.PORT);
   } catch (err) {

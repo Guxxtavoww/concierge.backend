@@ -1,4 +1,9 @@
-import { ForbiddenException, forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 
 import {
   applyOrderByFilters,
@@ -14,9 +19,9 @@ import {
   CondominiumMember,
   perfomatic_fields,
 } from '../entities/condominium-member.entity';
-import { CreateCondominiumMemberPayload } from '../dtos/create-condominium-member.dto';
+import { CreateCondominiumMemberPayload } from '../dtos/condominium/create-condominium-member.dto';
 import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
-import { PaginateCondominiumsMembersPayload } from '../dtos/paginate-condominiums-members.dto';
+import { PaginateCondominiumsMembersPayload } from '../dtos/condominium/paginate-condominiums-members.dto';
 
 @Injectable()
 export class CondominiumMemberService {
@@ -72,6 +77,24 @@ export class CondominiumMemberService {
     if (!membership) throw new NotFoundError('Member not found!');
 
     return membership;
+  }
+
+  async getMemberProfessions(
+    id: string,
+  ): Promise<Pick<CondominiumMember, 'professions' | 'user_id' | 'id'>> {
+    const result = await condominiumMemberRepository.findOne({
+      where: { id },
+      relations: ['professions'],
+      select: {
+        professions: true,
+        user_id: true,
+        id: true,
+      },
+    });
+
+    if (!result) throw new NotFoundError();
+
+    return result;
   }
 
   async getMembershipByUserIdAndCondominiumId(

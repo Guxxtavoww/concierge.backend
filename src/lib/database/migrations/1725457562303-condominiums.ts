@@ -1,9 +1,9 @@
 import {
   Table,
   TableIndex,
-  QueryRunner,
   TableForeignKey,
-  MigrationInterface,
+  type QueryRunner,
+  type MigrationInterface,
 } from 'typeorm';
 
 import { baseColumns } from '../entities/base-columns';
