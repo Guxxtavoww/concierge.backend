@@ -6,8 +6,8 @@ import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
 
 import { CondominiumMemberService } from '../services/condominium-member.service';
-import { CreateCondominiumMemberDTO } from '../dtos/condominium/create-condominium-member.dto';
-import { PaginateCondominiumsMembersDTO } from '../dtos/condominium/paginate-condominiums-members.dto';
+import { CreateCondominiumMemberDTO } from '../dtos/condominium-member/create-condominium-member.dto';
+import { PaginateCondominiumsMembersDTO } from '../dtos/condominium-member/paginate-condominiums-members.dto';
 
 @ApiTags('condominium-member')
 @Controller('condominium-member')

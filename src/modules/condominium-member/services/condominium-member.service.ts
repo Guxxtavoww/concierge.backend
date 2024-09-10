@@ -19,9 +19,9 @@ import {
   CondominiumMember,
   perfomatic_fields,
 } from '../entities/condominium-member.entity';
-import { CreateCondominiumMemberPayload } from '../dtos/condominium/create-condominium-member.dto';
+import { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
 import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
-import { PaginateCondominiumsMembersPayload } from '../dtos/condominium/paginate-condominiums-members.dto';
+import { PaginateCondominiumsMembersPayload } from '../dtos/condominium-member/paginate-condominiums-members.dto';
 
 @Injectable()
 export class CondominiumMemberService {

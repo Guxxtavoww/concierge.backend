@@ -13,7 +13,7 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
 import { Profession } from './profession.entity';
-import type { CreateCondominiumMemberPayload } from '../dtos/condominium/create-condominium-member.dto';
+import type { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
 
 @Entity('condominiums-members')
 export class CondominiumMember extends Base {
