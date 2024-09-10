@@ -160,7 +160,6 @@ export class CondominiumsMembers1725903643067 implements MigrationInterface {
 
       await queryRunner.dropIndex('condominiums-members', 'IDX_CONDOMINIUM_ID');
       await queryRunner.dropIndex('condominiums-members', 'IDX_USER_ID');
-      await queryRunner.dropIndex('condominiums-members', 'IDX_IS_TENANT');
 
       await queryRunner.dropTable('condominiums-members');
     }
