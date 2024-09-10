@@ -51,14 +51,6 @@ export class CondominiumMember extends Base {
 
     return item;
   }
-
-  static update(payload) {
-    const item = new CondominiumMember();
-
-    Object.assign(item, payload);
-
-    return item;
-  }
 }
 
 export const alias = 'condominium-member';
