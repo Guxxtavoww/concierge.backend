@@ -8,6 +8,12 @@ import { ProfessionCategoryService } from './services/profession-category.servic
 import { CondominiumMemberController } from './controllers/condominium-member.controller';
 import { ProfessionCategoryController } from './controllers/profession-category.controller';
 
+const providers = [
+  CondominiumMemberService,
+  ProfessionCategoryService,
+  ProfessionService,
+];
+
 @Module({
   imports: [forwardRef(() => CondominiumModule)],
   controllers: [
@@ -15,15 +21,7 @@ import { ProfessionCategoryController } from './controllers/profession-category.
     ProfessionController,
     ProfessionCategoryController,
   ],
-  providers: [
-    CondominiumMemberService,
-    ProfessionCategoryService,
-    ProfessionService,
-  ],
-  exports: [
-    CondominiumMemberService,
-    ProfessionCategoryService,
-    ProfessionService,
-  ],
+  providers,
+  exports: providers,
 })
 export class CondominiumMemberModule {}
