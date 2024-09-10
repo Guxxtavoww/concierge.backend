@@ -126,6 +126,9 @@ export class Condominium extends Base {
   @Column('int', { nullable: true })
   year_built: NullableValue<number>;
 
+  @Column('int', { default: 0 })
+  total_member_count: number;
+
   /**
    * The UUID of the manager responsible for the condominium.
    */
@@ -187,4 +190,5 @@ export const base_fields: CondominiumSelectKey[] = [
   'condominium.monthly_fee',
   'condominium.total_units',
   'condominium.year_built',
+  'condominium.total_member_count',
 ];

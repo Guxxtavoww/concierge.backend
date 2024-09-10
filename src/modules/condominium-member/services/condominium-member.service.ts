@@ -123,25 +123,45 @@ export class CondominiumMemberService {
     if (isMember)
       throw new ForbiddenException('Already are a member of this condominium');
 
-    const { id } =
+    const condominium =
       await this.condominiumService.getCondominiumById(condominium_id);
 
     const condominiumMemberToCreate = CondominiumMember.create({
-      condominium_id: id,
+      condominium_id: condominium.id,
       user_id,
       is_tenant,
     });
 
-    return condominiumMemberRepository.save(condominiumMemberToCreate);
+    const savedMember = await condominiumMemberRepository.save(
+      condominiumMemberToCreate,
+    );
+
+    await this.condominiumService.updateTotalMemberCount(
+      condominium,
+      'increment',
+    );
+
+    return savedMember;
   }
 
   async deleteMembership(id: string, logged_in_user_id: string) {
-    const { user_id, id: membershipToDeleteId } =
-      await this.getMembershipById(id);
+    const {
+      user_id,
+      id: membershipToDeleteId,
+      condominium_id,
+    } = await this.getMembershipById(id);
 
     if (user_id !== logged_in_user_id) {
       throw new ForbiddenException('Not Allowed');
     }
+
+    const condominium =
+      await this.condominiumService.getCondominiumById(condominium_id);
+
+    await this.condominiumService.updateTotalMemberCount(
+      condominium,
+      'decrement',
+    );
 
     return condominiumMemberRepository.delete(membershipToDeleteId);
   }

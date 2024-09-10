@@ -83,6 +83,11 @@ export class Condominiums1725457562303 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: 'total_member_count',
+            type: 'int',
+            default: 0,
+          },
+          {
             name: 'year_built',
             type: 'int',
             isNullable: true,

@@ -51,19 +51,20 @@ export function applyQueryFilters<
   }
 }
 
-export interface OrderByParams {
-  order_by_created_at: OrderBy;
-  order_by_updated_at: OrderBy;
-}
+export type OrderByParams = {
+  [key: `order_by_${string}`]: OrderBy;
+};
 
-export function applyOrderByFilters<T extends string, E extends ObjectLiteral>(
-  alias: T,
-  queryBuilder: SelectQueryBuilder<E>,
-  { order_by_created_at, order_by_updated_at }: OrderByParams,
-) {
-  if (order_by_created_at)
-    queryBuilder.orderBy(`${alias}.created_at`, order_by_created_at);
+export function applyOrderByFilters<
+  T extends string,
+  E extends ObjectLiteral,
+  F extends OrderByParams,
+>(alias: T, queryBuilder: SelectQueryBuilder<E>, filters: F) {
+  for (const [key, value] of Object.entries(filters)) {
+    if (!key.startsWith('order_by_')) throw new Error();
 
-  if (order_by_updated_at)
-    queryBuilder.orderBy(`${alias}.updated_at`, order_by_updated_at);
+    const column = key.replace('order_by_', '');
+
+    if (value) queryBuilder.orderBy(`${alias}.${column}`, value);
+  }
 }

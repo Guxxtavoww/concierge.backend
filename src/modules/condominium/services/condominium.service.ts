@@ -11,6 +11,7 @@ import {
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
+import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 import { alias as memberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
@@ -78,6 +79,7 @@ export class CondominiumService {
       page,
       order_by_created_at,
       order_by_updated_at,
+      order_by_total_member_count,
       ...filters
     }: PaginateCondominiumsType,
     logged_in_user_id: string,
@@ -104,6 +106,7 @@ export class CondominiumService {
     applyOrderByFilters(alias, queryBuilder, {
       order_by_created_at,
       order_by_updated_at,
+      order_by_total_member_count,
     });
 
     const { items, meta } =
@@ -143,6 +146,17 @@ export class CondominiumService {
     );
 
     return savedCondominium;
+  }
+
+  async updateTotalMemberCount(condominium: Condominium, type: CountHandler) {
+    if (condominium.total_member_count === 0 && type === 'decrement')
+      throw new BadRequestError('Cant decrement');
+
+    condominium.total_member_count += type === 'increment' ? 1 : -1;
+
+    return condominiumRepository.update(condominium.id, {
+      total_member_count: condominium.total_member_count,
+    });
   }
 
   async updateCondominium(

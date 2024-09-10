@@ -8,9 +8,11 @@ import {
   optionalStringToFloatSchema,
   optionalStringToIntegerSchema,
   optionalStringSchema,
+  optionalOrderParamSchema,
 } from 'src/shared/schemas.shared';
 import { isNullableValue } from 'src/utils/is-nullable-value.util';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
+import { OrderByEnum } from 'src/shared/enums.shared';
 
 export const paginateCondominiumsSchema = createPaginationSchema({
   condominium_name: optionalStringSchemaToLowerCase,
@@ -29,6 +31,7 @@ export const paginateCondominiumsSchema = createPaginationSchema({
   year_built: optionalStringToIntegerSchema.refine((v) =>
     !isNullableValue(v) ? v < new Date().getFullYear() : true,
   ),
+  order_by_total_member_count: optionalOrderParamSchema,
 });
 
 export type PaginateCondominiumsType = z.infer<
@@ -121,4 +124,9 @@ export class PaginateCondominiumsDTO extends createZodDto(
     description: 'Year the condominium was built',
   })
   year_built?: number;
+
+  @ApiPropertyOptional({
+    enum: OrderByEnum,
+  })
+  order_by_total_member_count?: 'ASC' | 'DESC';
 }
