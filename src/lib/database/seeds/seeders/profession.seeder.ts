@@ -5,6 +5,8 @@ import { type Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Profession } from 'src/modules/condominium-member/entities/profession.entity';
 import { ProfessionCategory } from 'src/modules/condominium-member/entities/profession-category.entity';
 
+import type { ProfessionCategoryType } from './profession-category.seeder';
+
 export const professionsToCreate = [
   { name: 'Eletricista', category: 'Elétrico' },
   { name: 'Técnico em Eletricidade', category: 'Elétrico' },
@@ -37,7 +39,7 @@ export const professionsToCreate = [
   { name: 'Instalador de Ar Condicionado', category: 'Climatização' },
   { name: 'Pintor', category: 'Pintura' },
   { name: 'Marceneiro', category: 'Marcenaria' },
-] as const;
+] satisfies { name: string; category: ProfessionCategoryType }[];
 
 export default class ProfessionSeeder implements Seeder {
   track = false;
@@ -52,16 +54,19 @@ export default class ProfessionSeeder implements Seeder {
 
     // Buscar todas as categorias do banco de dados
     const categories = await professionCategoryRepository.find();
-    
+
     // Criar mapa de categorias para fácil acesso
-    const categoryMap = categories.reduce((acc, category) => {
-      acc[category.category_name] = category;
-      return acc;
-    }, {} as Record<string, ProfessionCategory>);
+    const categoryMap = categories.reduce(
+      (acc, category) => {
+        acc[category.category_name] = category;
+        return acc;
+      },
+      {} as Record<string, ProfessionCategory>,
+    );
 
     const newProfessions = professionsToCreate.map((profession) => {
       const professionCategoryId = categoryMap[profession.category]!.id;
-      
+
       // Criar uma nova profissão associada à sua categoria
       return professionRepository.create({
         name: profession.name,
