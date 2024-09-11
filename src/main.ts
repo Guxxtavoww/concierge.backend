@@ -25,11 +25,13 @@ async function bootstrap() {
      * HTTP Interceptor
      * -----------------------------------------------------------------------------
      */
-    app.useGlobalInterceptors(new UnauthorizedInterceptor());
-    app.useGlobalInterceptors(new DataSourceInterceptor());
-    app.useGlobalInterceptors(new BadRequestInterceptor());
-    app.useGlobalInterceptors(new NotFoundInterceptor());
-    app.useGlobalInterceptors(new DataBaseInterceptor());
+    app.useGlobalInterceptors(
+      new UnauthorizedInterceptor(),
+      new DataSourceInterceptor(),
+      new BadRequestInterceptor(),
+      new NotFoundInterceptor(),
+      new DataBaseInterceptor(),
+    );
 
     if (ENV_VARIABLES.ENV === 'dev') {
       const [{ SwaggerModule }, { swaggerConfig }, { writeFileSync }] =
