@@ -58,6 +58,8 @@ export function applyOrderByFilters<T extends string, E extends ObjectLiteral>(
   queryBuilder: SelectQueryBuilder<E>,
   filters: OrderByParams,
 ) {
+  if (Object.values(filters).every((value) => !value)) return;
+
   for (const [key, value] of Object.entries(filters)) {
     if (!key.startsWith('order_by_')) throw new Error();
 
