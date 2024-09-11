@@ -6,7 +6,6 @@ import { Profession } from 'src/modules/condominium-member/entities/profession.e
 import { ProfessionCategory } from 'src/modules/condominium-member/entities/profession-category.entity';
 
 import type { ProfessionCategoryType } from './profession-category.seeder';
-import { Logger } from '@nestjs/common';
 
 export const professionsToCreate = [
   { name: 'Eletricista', category: 'Elétrico' },
