@@ -13,6 +13,7 @@ import { CondominiumMember } from 'src/modules/condominium-member/entities/condo
 
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
 import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
+import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 
 /**
  * Represents a condominium entity.
@@ -143,8 +144,11 @@ export class Condominium extends Base {
   @JoinColumn({ name: 'manager_id' })
   manager: User;
 
-  @OneToMany(() => CondominiumMember, (c) => c.condominium)
+  @OneToMany(() => CondominiumMember, (member) => member.condominium)
   members: CondominiumMember[];
+
+  @OneToMany(() => Schedule, (schedule) => schedule.condominium)
+  schedules: Schedule[];
 
   static create(payload: CreateCondominiumType & { manager_id: string }) {
     const item = new Condominium();

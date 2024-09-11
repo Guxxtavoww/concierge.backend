@@ -6,11 +6,14 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 
 import { Base } from 'src/lib/database/entities/base.entity';
 import { User } from 'src/modules/user/entities/user.entity';
+import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
+import { ScheduleInvite } from 'src/modules/schedule/entities/schedule-invite.entity';
 
 import { Profession } from './profession.entity';
 import type { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
@@ -38,11 +41,17 @@ export class CondominiumMember extends Base {
 
   @ManyToMany(() => Profession, (profession) => profession.members)
   @JoinTable({
-    name: 'condominium_member_professions', // Nome da tabela intermediária
+    name: 'condominium-member-professions', // Nome da tabela intermediária
     joinColumn: { name: 'condominium_member_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'profession_id', referencedColumnName: 'id' },
   })
   professions: Profession[];
+
+  @OneToMany(() => ScheduleInvite, (invite) => invite.member)
+  invites: ScheduleInvite[];
+
+  @ManyToMany(() => Schedule, (schedule) => schedule.participants)
+  events: Schedule[];
 
   static create(payload: CreateCondominiumMemberPayload & { user_id: string }) {
     const item = new CondominiumMember();

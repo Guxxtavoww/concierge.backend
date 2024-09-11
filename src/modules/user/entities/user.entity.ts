@@ -1,12 +1,13 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { Base } from 'src/lib/database/entities/base.entity';
+import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
-
-import type { CreateUserPayload } from '../dtos/create-user.dto';
-import type { UpdateUserPayload } from '../dtos/update-user.dto';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
+
+import type { UpdateUserPayload } from '../dtos/update-user.dto';
+import type { CreateUserPayload } from '../dtos/create-user.dto';
 
 @Entity('users')
 export class User extends Base {
@@ -33,6 +34,9 @@ export class User extends Base {
 
   @OneToMany(() => CondominiumMember, (member) => member.user)
   memberships: CondominiumMember[];
+
+  @OneToMany(() => Schedule, (schedule) => schedule.created_by_user_id)
+  schedules: Schedule[];
 
   private static async handleCreateHashedPassword(
     password: string,
