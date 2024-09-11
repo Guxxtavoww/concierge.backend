@@ -51,9 +51,7 @@ export function applyQueryFilters<
   }
 }
 
-export type OrderByParams = {
-  [key: `order_by_${string}`]: OrderBy;
-};
+export type OrderByParams = Record<`order_by_${string}`, OrderBy>;
 
 export function applyOrderByFilters<
   T extends string,
