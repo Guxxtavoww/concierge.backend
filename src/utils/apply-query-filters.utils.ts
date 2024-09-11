@@ -53,11 +53,11 @@ export function applyQueryFilters<
 
 export type OrderByParams = Record<`order_by_${string}`, OrderBy>;
 
-export function applyOrderByFilters<
-  T extends string,
-  E extends ObjectLiteral,
-  F extends OrderByParams,
->(alias: T, queryBuilder: SelectQueryBuilder<E>, filters: F) {
+export function applyOrderByFilters<T extends string, E extends ObjectLiteral>(
+  alias: T,
+  queryBuilder: SelectQueryBuilder<E>,
+  filters: OrderByParams,
+) {
   for (const [key, value] of Object.entries(filters)) {
     if (!key.startsWith('order_by_')) throw new Error();
 
