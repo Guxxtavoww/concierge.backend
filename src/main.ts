@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
@@ -33,17 +32,16 @@ async function bootstrap() {
     app.useGlobalInterceptors(new DataBaseInterceptor());
 
     if (ENV_VARIABLES.ENV === 'dev') {
-      const [{ SwaggerModule }, { swaggerConfig }] = await Promise.all([
-        import('@nestjs/swagger'),
-        import('./config/swagger.config'),
-      ]);
+      const [{ SwaggerModule }, { swaggerConfig }, { writeFileSync }] =
+        await Promise.all([
+          import('@nestjs/swagger'),
+          import('./config/swagger.config'),
+          import('fs'),
+        ]);
 
       const document = SwaggerModule.createDocument(app, swaggerConfig);
 
-      fs.writeFileSync(
-        'swagger-document.json',
-        JSON.stringify(document, null, 2),
-      );
+      writeFileSync('swagger-document.json', JSON.stringify(document, null, 2));
 
       SwaggerModule.setup('server', app, document);
     }
