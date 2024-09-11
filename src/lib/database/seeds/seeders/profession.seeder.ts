@@ -6,6 +6,7 @@ import { Profession } from 'src/modules/condominium-member/entities/profession.e
 import { ProfessionCategory } from 'src/modules/condominium-member/entities/profession-category.entity';
 
 import type { ProfessionCategoryType } from './profession-category.seeder';
+import { Logger } from '@nestjs/common';
 
 export const professionsToCreate = [
   { name: 'Eletricista', category: 'Elétrico' },
@@ -53,7 +54,9 @@ export default class ProfessionSeeder implements Seeder {
       dataSource.getRepository(ProfessionCategory);
 
     // Buscar todas as categorias do banco de dados
-    const categories = await professionCategoryRepository.find();
+    const categories = await professionCategoryRepository.find({
+      select: ['category_name', 'id'],
+    });
 
     // Criar mapa de categorias para fácil acesso
     const categoryMap = categories.reduce(
@@ -64,19 +67,15 @@ export default class ProfessionSeeder implements Seeder {
       {} as Record<string, ProfessionCategory>,
     );
 
-    const newProfessions = professionsToCreate.map((profession) => {
-      const professionCategoryId = categoryMap[profession.category]!.id;
-
-      // Criar uma nova profissão associada à sua categoria
-      return professionRepository.create({
-        name: profession.name,
-        profession_category_id: professionCategoryId,
-      });
-    });
-
-    // Salvar todas as novas profissões no banco de dados
     await Promise.all(
-      newProfessions.map((profession) => professionRepository.save(profession)),
+      professionsToCreate.map((profession) => {
+        const profession_category_id = categoryMap[profession.category]!.id;
+
+        return professionRepository.save({
+          name: profession.name,
+          profession_category_id,
+        });
+      }),
     );
   }
 }

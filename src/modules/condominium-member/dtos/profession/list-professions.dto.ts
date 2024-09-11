@@ -4,15 +4,15 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
   optionalOrderParamSchema,
-  optionalIntegerNumberSchema,
   optionalStringSchemaToLowerCase,
+  optionalStringToIntegerSchema,
 } from 'src/shared/schemas.shared';
 import { OrderByEnum } from 'src/shared/enums.shared';
 
 export const listProfessionsSchema = z.object({
   name: optionalStringSchemaToLowerCase,
   description: optionalStringSchemaToLowerCase,
-  profession_category_id: optionalIntegerNumberSchema,
+  profession_category_id: optionalStringToIntegerSchema,
   order_by_created_at: optionalOrderParamSchema,
   order_by_updated_at: optionalOrderParamSchema,
 });

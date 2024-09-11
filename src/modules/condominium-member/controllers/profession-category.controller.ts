@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { Public } from 'src/shared/decorators/auth.decorator';
 import { NumberParam } from 'src/shared/decorators/number-param.decorator';
 
 import { ProfessionCategoryService } from '../services/profession-category.service';
@@ -23,6 +24,7 @@ export class ProfessionCategoryController {
     private readonly professionCategoryService: ProfessionCategoryService,
   ) {}
 
+  @Public()
   @Get('list')
   list(@Query() querys: ListProfessionsCategoriesDTO) {
     return this.professionCategoryService.listProfessionsCategories(querys);

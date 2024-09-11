@@ -1,14 +1,14 @@
 import {
+  MigrationInterface,
+  QueryRunner,
   Table,
-  TableIndex,
   TableForeignKey,
-  type QueryRunner,
-  type MigrationInterface,
+  TableIndex,
 } from 'typeorm';
 
 import { baseColumns } from '../entities/base-columns';
 
-export class CondominiumsMembers1725903643067 implements MigrationInterface {
+export class CondominiumsMembers1726061564640 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({

@@ -19,11 +19,8 @@ export class MainSeeder implements Seeder {
     dataSource: DataSource,
     _factoryManager: SeederFactoryManager,
   ): Promise<void> {
-    await Promise.all([
-      runSeeder(dataSource, UserSeeder),
-      runSeeder(dataSource, ProfessionCategorySeeder),
-    ]);
-
+    await runSeeder(dataSource, UserSeeder);
+    await runSeeder(dataSource, ProfessionCategorySeeder);
     await runSeeder(dataSource, ProfessionSeeder);
   }
 }

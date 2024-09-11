@@ -1,4 +1,11 @@
-import { Column, Entity, Index, ManyToMany, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+} from 'typeorm';
 
 import { BaseWithIncrementalId } from 'src/lib/database/entities/base.entity';
 
@@ -20,6 +27,7 @@ export class Profession extends BaseWithIncrementalId {
   profession_category_id: number;
 
   @ManyToOne(() => ProfessionCategory, (category) => category.professions)
+  @JoinColumn({ name: 'profession_category_id' })
   profession_category: ProfessionCategory;
 
   @ManyToMany(() => CondominiumMember, (member) => member.professions)

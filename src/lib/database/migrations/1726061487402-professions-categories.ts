@@ -1,13 +1,8 @@
-import {
-  Table,
-  TableIndex,
-  type QueryRunner,
-  type MigrationInterface,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
 
 import { baseColumnsWithIncrementalId } from '../entities/base-columns';
 
-export class ProfessionCategory1725903643068 implements MigrationInterface {
+export class ProfessionsCategories1726061487402 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
