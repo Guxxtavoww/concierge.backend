@@ -9,10 +9,10 @@ import {
 
 import { Base } from 'src/lib/database/entities/base.entity';
 import { User } from 'src/modules/user/entities/user.entity';
+import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
 import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
-import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 /**
  * Represents a condominium entity.
