@@ -73,11 +73,20 @@ export const phoneNumberStringSchema = stringSchema.regex(
 
 export const timeStringSchema = stringSchema.time({ precision: 3 });
 
-export const datetimeStringSchema = stringSchema
-  .datetime()
-  .transform((value) => new Date(value));
+export const datetimeStringSchema = stringSchema.datetime();
 
 export const dateStringSchema = stringSchema.date();
+
+export const futureDatetimeSchema = dateStringSchema.refine(
+  (datetime) => {
+    const datefyedValue = new Date(datetime);
+    const currentDate = new Date();
+
+    // Verifica se a data inserida é posterior à data atual
+    return datefyedValue > currentDate;
+  },
+  { message: 'The date must be in the future' },
+);
 
 /**
  * -----------------------------------------------------------------------------
@@ -121,6 +130,9 @@ export const optionalTimeStringSchema =
 
 export const optionalDatetimeStringSchema =
   createNullableTransform(datetimeStringSchema);
+
+export const optionalFutureDatetimeSchema =
+  createNullableTransform(futureDatetimeSchema);
 
 export const optionalDateStringSchema =
   createNullableTransform(dateStringSchema);
