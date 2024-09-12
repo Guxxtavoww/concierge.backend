@@ -29,6 +29,10 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
             type: 'uuid',
           },
           {
+            name: 'condominium_id',
+            type: 'uuid',
+          },
+          {
             name: 'schedule_invite_status',
             type: 'enum',
             enum: schedule_invite_status,
@@ -52,6 +56,14 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
       new TableIndex({
         name: 'IDX_SCHEDULE_INVITES_CONDOMINIUM_MEMBER_ID',
         columnNames: ['condominium_member_id'],
+      }),
+    );
+
+    await queryRunner.createIndex(
+      'schedule-invites',
+      new TableIndex({
+        name: 'IDX_SCHEDULE_INVITES_CONDOMINIUM_ID',
+        columnNames: ['condominium_id'],
       }),
     );
 
@@ -84,6 +96,16 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
         onDelete: 'CASCADE',
       }),
     );
+
+    await queryRunner.createForeignKey(
+      'schedule-invites',
+      new TableForeignKey({
+        columnNames: ['condominium_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'condominiums',
+        onDelete: 'CASCADE',
+      }),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -93,10 +115,22 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
     );
     await queryRunner.dropForeignKey(
       'schedule-invites',
+      'FK_schedule_invites_condominium',
+    );
+
+    await queryRunner.dropForeignKey(
+      'schedule-invites',
       'FK_schedule_invites_condominium_member',
     );
 
-    await queryRunner.dropIndex('schedule-invites', 'IDX_SCHEDULE_INVITES_SCHEDULE_ID');
+    await queryRunner.dropIndex(
+      'schedule-invites',
+      'IDX_SCHEDULE_INVITES_SCHEDULE_ID',
+    );
+    await queryRunner.dropIndex(
+      'schedule-invites',
+      'IDX_SCHEDULE_INVITES_CONDOMINIUM_ID',
+    );
     await queryRunner.dropIndex(
       'schedule-invites',
       'IDX_SCHEDULE_INVITES_CONDOMINIUM_MEMBER_ID',

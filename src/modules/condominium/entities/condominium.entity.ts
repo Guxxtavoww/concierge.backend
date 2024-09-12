@@ -9,11 +9,12 @@ import {
 
 import { Base } from 'src/lib/database/entities/base.entity';
 import { User } from 'src/modules/user/entities/user.entity';
+import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
+import { ScheduleInvite } from 'src/modules/schedule/entities/schedule-invite.entity';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
 import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
-import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 
 /**
  * Represents a condominium entity.
@@ -149,6 +150,9 @@ export class Condominium extends Base {
 
   @OneToMany(() => Schedule, (schedule) => schedule.condominium)
   schedules: Schedule[];
+
+  @OneToMany(() => ScheduleInvite, (scheduleInvite) => scheduleInvite.condominium)
+  invites: ScheduleInvite[];
 
   static create(payload: CreateCondominiumType & { manager_id: string }) {
     const item = new Condominium();
