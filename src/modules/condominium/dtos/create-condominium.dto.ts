@@ -63,6 +63,7 @@ export class CreateCondominiumDTO extends createZodDto(
 
   @ApiPropertyOptional({
     description: 'The monthly fee associated with the condominium.',
+    example: 1800.00,
   })
   monthly_fee?: number;
 

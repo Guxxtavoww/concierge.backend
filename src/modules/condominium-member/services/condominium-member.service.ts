@@ -79,6 +79,16 @@ export class CondominiumMemberService {
     return membership;
   }
 
+  async getMembershipByUserId(user_id: string) {
+    const membership = await this.createCondominiumMemberQueryBuilder()
+      .where(`${alias}.user_id = :user_id`, { user_id })
+      .getOne();
+
+    if (!membership) throw new NotFoundError('Member not found!');
+
+    return membership;
+  }
+
   async getMemberProfessions(
     id: string,
   ): Promise<Pick<CondominiumMember, 'professions' | 'user_id' | 'id'>> {

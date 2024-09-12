@@ -35,8 +35,8 @@ export class User extends Base {
   @OneToMany(() => CondominiumMember, (member) => member.user)
   memberships: CondominiumMember[];
 
-  @OneToMany(() => Schedule, (schedule) => schedule.created_by_user_id)
-  schedules: Schedule[];
+  @OneToMany(() => Schedule, (schedule) => schedule.created_by)
+  created_schedules: Schedule[];
 
   private static async handleCreateHashedPassword(
     password: string,

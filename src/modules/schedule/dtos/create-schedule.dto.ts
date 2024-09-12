@@ -12,6 +12,7 @@ import {
 } from 'src/shared/schemas.shared';
 
 import { ScheduleType } from '../enums/schedule-type.enum';
+import { ScheduleInvite } from '../entities/schedule-invite.entity';
 import { scheduleTypeSchema } from '../schemas/schedule-type.schema';
 
 export const createScheduleSchema = z.object({
@@ -25,6 +26,11 @@ export const createScheduleSchema = z.object({
 });
 
 export type CreateSchedulePayload = z.infer<typeof createScheduleSchema>;
+
+export type CreateSchedule = CreateSchedulePayload & {
+  created_by_id: string;
+  invites?: ScheduleInvite[];
+};
 
 export class CreateScheduleDTO extends createZodDto(createScheduleSchema) {
   @ApiProperty()

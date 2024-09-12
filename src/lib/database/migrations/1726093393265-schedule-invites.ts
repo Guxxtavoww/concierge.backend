@@ -42,7 +42,7 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
     await queryRunner.createIndex(
       'schedule-invites',
       new TableIndex({
-        name: 'IDX_SCHEDULE_ID',
+        name: 'IDX_SCHEDULE_INVITES_SCHEDULE_ID',
         columnNames: ['schedule_id'],
       }),
     );
@@ -50,7 +50,7 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
     await queryRunner.createIndex(
       'schedule-invites',
       new TableIndex({
-        name: 'IDX_CONDOMINIUM_MEMBER_ID',
+        name: 'IDX_SCHEDULE_INVITES_CONDOMINIUM_MEMBER_ID',
         columnNames: ['condominium_member_id'],
       }),
     );
@@ -96,10 +96,10 @@ export class ScheduleInvites1726093393265 implements MigrationInterface {
       'FK_schedule_invites_condominium_member',
     );
 
-    await queryRunner.dropIndex('schedule-invites', 'IDX_SCHEDULE_ID');
+    await queryRunner.dropIndex('schedule-invites', 'IDX_SCHEDULE_INVITES_SCHEDULE_ID');
     await queryRunner.dropIndex(
       'schedule-invites',
-      'IDX_CONDOMINIUM_MEMBER_ID',
+      'IDX_SCHEDULE_INVITES_CONDOMINIUM_MEMBER_ID',
     );
     await queryRunner.dropIndex(
       'schedule-invites',

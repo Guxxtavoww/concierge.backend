@@ -59,7 +59,7 @@ export class Schedules1726092896242 implements MigrationInterface {
             type: 'uuid',
           },
           {
-            name: 'created_by_user_id',
+            name: 'created_by_id',
             type: 'uuid',
           },
         ],
@@ -110,7 +110,7 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.createIndex(
       'schedules',
       new TableIndex({
-        name: 'IDX_CONDOMINIUM_ID',
+        name: 'IDX_SCHEDULE_CONDOMINIUM_ID',
         columnNames: ['condominium_id'],
       }),
     );
@@ -118,8 +118,8 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.createIndex(
       'schedules',
       new TableIndex({
-        name: 'IDX_CREATED_BY_USER_ID',
-        columnNames: ['created_by_user_id'],
+        name: 'IDX_CREATED_BY_ID',
+        columnNames: ['created_by_id'],
       }),
     );
 
@@ -136,7 +136,7 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.createForeignKey(
       'schedules',
       new TableForeignKey({
-        columnNames: ['created_by_user_id'],
+        columnNames: ['created_by_id'],
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'CASCADE',
@@ -172,7 +172,7 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.createIndex(
       'schedule-participants',
       new TableIndex({
-        name: 'IDX_CONDOMINIUM_MEMBER_ID',
+        name: 'IDX_SCHEDULE_CONDOMINIUM_MEMBER_ID',
         columnNames: ['condominium_member_id'],
       }),
     );
@@ -192,7 +192,7 @@ export class Schedules1726092896242 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['condominium_member_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'condominiums-members',
+        referencedTableName: 'users',
         onDelete: 'CASCADE',
       }),
     );
@@ -216,13 +216,13 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_STATUS');
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_TYPE');
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULED_DATETIME');
-    await queryRunner.dropIndex('schedules', 'IDX_CONDOMINIUM_ID');
-    await queryRunner.dropIndex('schedules', 'IDX_CREATED_BY_USER_ID');
+    await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_CONDOMINIUM_ID');
+    await queryRunner.dropIndex('schedules', 'IDX_CREATED_BY_ID');
 
     await queryRunner.dropIndex('schedule-participants', 'IDX_SCHEDULE_ID');
     await queryRunner.dropIndex(
       'schedule-participants',
-      'IDX_CONDOMINIUM_MEMBER_ID',
+      'IDX_SCHEDULE_CONDOMINIUM_MEMBER_ID',
     );
 
     await queryRunner.dropTable('schedule-participants');

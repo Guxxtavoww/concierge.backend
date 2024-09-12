@@ -16,10 +16,10 @@ export const orderParamSchema = z.enum(['ASC', 'DESC']);
 export const genderStringSchema = z.enum(['M', 'F']);
 export const integerNumberSchema = numberSchema.int();
 export const floatNumberSchema = numberSchema.refine(
-  (val) => !Number.isInteger(val),
-  {
-    message: 'Value must be float',
+  (val) => {
+    return !(val % 1 !== 0 || /\.\d+/.test(val.toString()));
   },
+  { message: 'Value must be float' },
 );
 
 export const booleanSchema = z.boolean();
@@ -77,7 +77,7 @@ export const datetimeStringSchema = stringSchema.datetime();
 
 export const dateStringSchema = stringSchema.date();
 
-export const futureDatetimeSchema = dateStringSchema.refine(
+export const futureDatetimeSchema = datetimeStringSchema.refine(
   (datetime) => {
     const datefyedValue = new Date(datetime);
     const currentDate = new Date();
