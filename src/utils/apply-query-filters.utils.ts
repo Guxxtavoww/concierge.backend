@@ -17,7 +17,7 @@ export function applyQueryFilters<
   queryBuilder: SelectQueryBuilder<Entity>,
   filters: Filters,
   filters_types: FilterType,
-): void {
+) {
   if (Object.keys(filters).length === 0) return;
 
   let index: number = 0;
@@ -49,6 +49,8 @@ export function applyQueryFilters<
 
     index++;
   }
+
+  return queryBuilder;
 }
 
 export type OrderByParams = Record<`order_by_${string}`, OrderBy>;
@@ -67,4 +69,6 @@ export function applyOrderByFilters<T extends string, E extends ObjectLiteral>(
 
     if (value) queryBuilder.orderBy(`${alias}.${column}`, value);
   }
+
+  return queryBuilder;
 }
