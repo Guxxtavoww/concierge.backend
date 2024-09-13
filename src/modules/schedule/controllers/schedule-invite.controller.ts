@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { Public } from 'src/shared/decorators/auth.decorator';
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
@@ -16,6 +17,7 @@ import { PaginateSchedulesInvitesDTO } from '../dtos/paginate-schedules-invites.
 export class ScheduleInviteController {
   constructor(private readonly scheduleInviteService: ScheduleInviteService) {}
 
+  @Public()
   @Get('schedule-invite-statuses')
   getScheduleInviteStatuses() {
     return schedule_invite_status;
