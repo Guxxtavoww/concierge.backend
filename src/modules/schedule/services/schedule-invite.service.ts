@@ -76,27 +76,23 @@ export class ScheduleInviteService {
   }
 
   async sendScheduleInvite(
-    {
-      condominium_id,
-      schedule_id,
-      condominium_member_id,
-    }: SendScheduleInvitePayload,
+    { condominium_id, schedule_id }: SendScheduleInvitePayload,
     logged_in_user_id: string,
   ): Promise<ScheduleInvite> {
-    const [membership, schedule] = await Promise.all([
+    const [condominium_member, schedule] = await Promise.all([
       this.condominiumMemberService.getMembershipByUserIdAndCondominiumId(
-        condominium_member_id,
+        logged_in_user_id,
         condominium_id,
       ),
       this.scheduleService.getScheduleById(schedule_id),
     ]);
 
-    if (!membership || membership.user_id === logged_in_user_id)
+    if (!condominium_member || condominium_member.user_id === logged_in_user_id)
       throw new NotFoundError('Invalid Member');
 
     const scheduleInviteToCreate = ScheduleInvite.create({
-      condominium_id: membership.condominium_id,
-      condominium_member_id: membership.user_id,
+      condominium_id: condominium_member.condominium_id,
+      condominium_member_id: condominium_member.id,
       schedule_id: schedule.id,
     });
 

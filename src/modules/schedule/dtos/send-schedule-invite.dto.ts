@@ -7,7 +7,6 @@ import { uuidSchema } from 'src/shared/schemas.shared';
 export const sendScheduleInviteSchema = z.object({
   schedule_id: uuidSchema,
   condominium_id: uuidSchema,
-  condominium_member_id: uuidSchema,
 });
 
 export type SendScheduleInvitePayload = z.infer<
@@ -22,7 +21,4 @@ export class SendScheduleInviteDTO extends createZodDto(
 
   @ApiProperty()
   condominium_id: string;
-
-  @ApiProperty()
-  condominium_member_id: string
 }
