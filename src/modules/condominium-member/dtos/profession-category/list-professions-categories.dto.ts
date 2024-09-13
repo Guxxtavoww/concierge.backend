@@ -3,6 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
+  type OrderBy,
   optionalOrderParamSchema,
   optionalStringSchemaToLowerCase,
 } from 'src/shared/schemas.shared';
@@ -29,8 +30,8 @@ export class ListProfessionsCategoriesDTO extends createZodDto(
   category_description?: string;
 
   @ApiPropertyOptional({ enum: OrderByEnum })
-  order_by_created_at?: 'ASC' | 'DESC';
+  order_by_created_at?: OrderBy;
 
   @ApiPropertyOptional({ enum: OrderByEnum })
-  order_by_updated_at?: 'ASC' | 'DESC';
+  order_by_updated_at?: OrderBy;
 }

@@ -3,6 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
+  type OrderBy,
   optionalStringSchemaToLowerCase,
   optionalBooleanStringSchema,
   optionalStringToFloatSchema,
@@ -128,5 +129,5 @@ export class PaginateCondominiumsDTO extends createZodDto(
   @ApiPropertyOptional({
     enum: OrderByEnum,
   })
-  order_by_total_member_count?: 'ASC' | 'DESC';
+  order_by_total_member_count?: OrderBy;
 }

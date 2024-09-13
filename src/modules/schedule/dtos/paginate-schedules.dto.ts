@@ -8,6 +8,7 @@ import {
   optionalOrderParamSchema,
   optionalBooleanStringSchema,
   optionalFutureDatetimeSchema,
+  type OrderBy,
 } from 'src/shared/schemas.shared';
 import { OrderByEnum } from 'src/shared/enums.shared';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
@@ -55,7 +56,7 @@ export class PaginateSchedulesDTO extends createZodDto(
   is_private?: boolean;
 
   @ApiPropertyOptional({ enum: OrderByEnum })
-  order_by_participant_limit?: 'ASC' | 'DESC';
+  order_by_participant_limit?: OrderBy;
 
   @ApiPropertyOptional()
   created_by_id?: string;
