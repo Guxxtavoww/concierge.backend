@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     "noUncheckedIndexedAccess": true,
     "incremental": false,
-    "composite": false
+    "composite": false,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],

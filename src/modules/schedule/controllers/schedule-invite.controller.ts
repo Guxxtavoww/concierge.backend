@@ -4,6 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
+import { DataBaseInterceptorDecorator } from 'src/shared/decorators/database-interceptor.decorator';
 
 import { SendScheduleInviteDTO } from '../dtos/send-schedule-invite.dto';
 import { ScheduleInviteService } from '../services/schedule-invite.service';
@@ -26,6 +27,7 @@ export class ScheduleInviteController {
     return this.scheduleInviteService.paginateSchedulesInvites(querys);
   }
 
+  @DataBaseInterceptorDecorator()
   @Post('send-invitation')
   sendInvitation(
     @Body() body: SendScheduleInviteDTO,
@@ -37,6 +39,7 @@ export class ScheduleInviteController {
     );
   }
 
+  @DataBaseInterceptorDecorator()
   @Put('accept-invitation/:invitation_id')
   accept(
     @UuidParam('invitation_id') invitation_id: string,
@@ -49,6 +52,7 @@ export class ScheduleInviteController {
     );
   }
 
+  @DataBaseInterceptorDecorator()
   @Put('decline-invitation/:invitation_id')
   decline(
     @UuidParam('invitation_id') invitation_id: string,

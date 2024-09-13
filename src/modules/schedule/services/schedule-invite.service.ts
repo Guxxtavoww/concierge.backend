@@ -6,6 +6,7 @@ import {
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
+import { CondominiumService } from 'src/modules/condominium/services/condominium.service';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
 import {
@@ -24,6 +25,7 @@ export class ScheduleInviteService {
   constructor(
     private readonly scheduleService: ScheduleService,
     private readonly paginationService: PaginationService,
+    private readonly condominiumService: CondominiumService,
     private readonly condominiumMemberService: CondominiumMemberService,
   ) {}
 
@@ -43,8 +45,8 @@ export class ScheduleInviteService {
     const queryBuilder = this.createScheduleInviteQueryBuilder();
 
     applyQueryFilters(scheduleInviteAlias, queryBuilder, filters, {
-      condominium_member_id: '=',
       schedule_id: '=',
+      condominium_member_id: '=',
       schedule_invite_status: '=',
     });
 
@@ -76,22 +78,31 @@ export class ScheduleInviteService {
   }
 
   async sendScheduleInvite(
-    { condominium_id, schedule_id }: SendScheduleInvitePayload,
+    {
+      schedule_id,
+      condominium_id,
+      condominium_member_id,
+    }: SendScheduleInvitePayload,
     logged_in_user_id: string,
   ): Promise<ScheduleInvite> {
-    const [condominium_member, schedule] = await Promise.all([
-      this.condominiumMemberService.getMembershipByUserIdAndCondominiumId(
-        logged_in_user_id,
-        condominium_id,
-      ),
+    const [schedule, condominium, condominium_member] = await Promise.all([
       this.scheduleService.getScheduleById(schedule_id),
+      this.condominiumService.getCondominiumById(condominium_id),
+      this.condominiumMemberService.getMembershipById(condominium_member_id),
     ]);
 
-    if (!condominium_member || condominium_member.user_id === logged_in_user_id)
+    if (condominium_member.user_id === logged_in_user_id)
       throw new NotFoundError('Invalid Member');
 
+    if (
+      schedule.is_private &&
+      condominium_member.condominium_id !== condominium.id
+    ) {
+      throw new ForbiddenException('Not a member of this condominium');
+    }
+
     const scheduleInviteToCreate = ScheduleInvite.create({
-      condominium_id: condominium_member.condominium_id,
+      condominium_id: condominium.id,
       condominium_member_id: condominium_member.id,
       schedule_id: schedule.id,
     });
