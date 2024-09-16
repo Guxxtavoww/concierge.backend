@@ -8,7 +8,7 @@ import { DataBaseInterceptor } from './lib/http-exceptions/errors/interceptors/d
 import { NotFoundInterceptor } from './lib/http-exceptions/errors/interceptors/not-found.interceptor';
 import { BadRequestInterceptor } from './lib/http-exceptions/errors/interceptors/bad-request.interceptor';
 import { UnauthorizedInterceptor } from './lib/http-exceptions/errors/interceptors/unauthorized.interceptor';
-import { DataSourceInterceptor } from './lib/http-exceptions/errors/interceptors/conctionDataSource.interceptor';
+import { DataSourceInterceptor } from './lib/http-exceptions/errors/interceptors/conction-data-source.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
