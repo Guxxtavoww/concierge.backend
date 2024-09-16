@@ -138,20 +138,17 @@ export class ScheduleService {
     userId: string,
     condominium_id: string,
   ): Promise<string> {
-    const { id } =
-      await this.condominiumService.getCondominiumById(condominium_id);
-
     const membership =
       await this.condominiumMemberService.getMembershipByUserIdAndCondominiumId(
         userId,
-        id,
+        condominium_id,
       );
 
     if (!membership) {
       throw new ForbiddenException('You are not a member of this condominium');
     }
 
-    return id;
+    return membership.condominium_id;
   }
 
   async paginateSchedules({
