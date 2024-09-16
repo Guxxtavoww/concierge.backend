@@ -49,13 +49,13 @@ export type CreateSchedule = CreateSchedulePayload & {
 const date = new Date();
 
 function getStartDate() {
-  date.setMinutes(date.getMinutes() + 1);
+  date.setMinutes(date.getMinutes() + 2);
 
   return date.toISOString()
 }
 
 function getEndDate() {
-  date.setMinutes(date.getMinutes() + 2);
+  date.setMinutes(date.getMinutes() + 3);
 
   return date.toISOString()
 }

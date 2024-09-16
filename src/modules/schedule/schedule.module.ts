@@ -10,7 +10,7 @@ import { CondominiumMemberModule } from '../condominium-member/condominium-membe
 const providers = [ScheduleService, ScheduleInviteService];
 
 @Module({
-  imports: [CondominiumMemberModule],
+  imports: [CondominiumMemberModule, CondominiumModule],
   controllers: [ScheduleController, ScheduleInviteController],
   providers,
   exports: providers,
