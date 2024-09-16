@@ -5,21 +5,21 @@ import {
   stringSchema,
   optionalStringSchema,
   optionalUrlStringSchema,
-  optionalStringToNumberSchema,
+  optionalStringToIntegerSchema,
 } from 'src/shared/schemas.shared';
 
 export const envSchema = z.object({
   DATABASE_ROOT_PASSWORD: stringSchema,
   DATABASE_DATABASE_NAME: stringSchema,
-  DB_PORT: optionalStringToNumberSchema.default('5432'),
+  DB_PORT: optionalStringToIntegerSchema.default('5432'),
   DATABASE_HOST: optionalStringSchema.default('localhost'),
   DB_USER: stringSchema,
   JWT_SECRET: stringSchema,
   JWT_ISSUER: optionalUrlStringSchema,
   JWT_AUDIENCE: optionalUrlStringSchema,
   JWT_EXPIRES_IN: stringSchema,
-  PORT: optionalStringToNumberSchema.default('5000'),
-  WEBSOCKET_PORT: optionalStringToNumberSchema.default('80'),
+  PORT: optionalStringToIntegerSchema.default('5000'),
+  WEBSOCKET_PORT: optionalStringToIntegerSchema.default('80'),
   ENV: z.enum(['prod', 'dev']).default('dev'),
 });
 
