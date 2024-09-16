@@ -44,7 +44,7 @@ export class CondominiumService {
   private async addIsMemberToCondominiums(
     condominiums: Condominium[],
     logged_in_user_id: string,
-  ) {
+  ): Promise<(Condominium & { is_current_user_member: boolean })[]> {
     if (!condominiums.length) return [];
 
     const condominiumsIds = new Array(
