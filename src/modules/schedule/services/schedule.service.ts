@@ -9,7 +9,6 @@ import {
 import { LogService } from 'src/lib/log/log.service';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
-import { CondominiumService } from 'src/modules/condominium/services/condominium.service';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
 import {
