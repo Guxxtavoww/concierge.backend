@@ -31,7 +31,7 @@ export class ScheduleService {
     private readonly paginationService: PaginationService,
     private readonly condominiumService: CondominiumService,
     private readonly condominiumMemberService: CondominiumMemberService,
-    private schedulerRegistry: SchedulerRegistry,
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
   private parseScheduledDatetime(scheduled_datetime: string) {
@@ -51,6 +51,7 @@ export class ScheduleService {
       this.parseScheduledDatetime(schedule.scheduled_datetime_start);
 
     const startCronExpression = `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
+
     const startCronJob = new CronJob(startCronExpression, async () => {
       try {
         await scheduleRepository.update(schedule.id, {
@@ -89,6 +90,8 @@ export class ScheduleService {
         });
 
         this.logService.logger?.log(`Schedule ${schedule.id} is now finished.`);
+
+        this.removeCronJobs(schedule.id);
       } catch (error) {
         this.logService.logger?.error(
           `Failed to update schedule to Finished: ${error.message}`,

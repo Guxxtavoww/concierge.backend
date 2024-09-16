@@ -29,8 +29,8 @@ export const createScheduleSchema = z
   .refine(
     (data) => {
       if (
-        new Date(data.scheduled_datetime_end) >=
-        new Date(data.scheduled_datetime_end)
+        new Date(data.scheduled_datetime_start) >=
+        new Date(data.scheduled_datetime_end) 
       )
         return false;
 
@@ -46,6 +46,20 @@ export type CreateSchedule = CreateSchedulePayload & {
   invites?: ScheduleInvite[];
 };
 
+const date = new Date();
+
+function getStartDate() {
+  date.setMinutes(date.getMinutes() + 1);
+
+  return date.toISOString()
+}
+
+function getEndDate() {
+  date.setMinutes(date.getMinutes() + 2);
+
+  return date.toISOString()
+}
+
 export class CreateScheduleDTO extends createZodDto(createScheduleSchema) {
   @ApiProperty()
   schedule_title: string;
@@ -56,10 +70,10 @@ export class CreateScheduleDTO extends createZodDto(createScheduleSchema) {
   @ApiProperty({ enum: ScheduleType, example: ScheduleType.MEETING })
   schedule_type: ScheduleType;
 
-  @ApiProperty({ example: new Date().toISOString() })
+  @ApiProperty({ example: getStartDate() })
   scheduled_datetime_start: string;
 
-  @ApiProperty({ example: new Date().toISOString() })
+  @ApiProperty({ example: getEndDate() })
   scheduled_datetime_end: string;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
