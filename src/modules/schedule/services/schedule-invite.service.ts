@@ -15,6 +15,7 @@ import {
   schedule_invite_base_fields,
 } from '../entities/schedule-invite.entity';
 import { ScheduleService } from './schedule.service';
+import { ScheduleStatus } from '../enums/schedule-status.enum';
 import { ScheduleInviteStatus } from '../enums/schedule-invite-status.enum';
 import type { SendScheduleInvitePayload } from '../dtos/send-schedule-invite.dto';
 import { scheduleInviteRepository } from '../repositories/schedule-invite.repository';
@@ -90,6 +91,9 @@ export class ScheduleInviteService {
       this.condominiumService.getCondominiumById(condominium_id),
       this.condominiumMemberService.getMembershipById(condominium_member_id),
     ]);
+
+    if (schedule.schedule_status === ScheduleStatus.FINISHED)
+      throw new ForbiddenException('Finished');
 
     if (condominium_member.user_id === logged_in_user_id)
       throw new NotFoundError('Invalid Member');

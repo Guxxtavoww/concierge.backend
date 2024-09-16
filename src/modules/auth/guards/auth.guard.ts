@@ -9,19 +9,17 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 
+import { LogService } from 'src/lib/log/log.service';
 import { jwtConstants } from 'src/config/jwt.config';
-import { ENV_VARIABLES } from 'src/config/env.config';
 import { IS_PUBLIC_KEY } from 'src/shared/decorators/auth.decorator';
 import { DECODED_TOKEN_KEY } from 'src/shared/decorators/decoded-token.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private readonly logger: Logger | undefined =
-    ENV_VARIABLES.ENV === 'dev' ? new Logger(AuthGuard.name) : undefined;
-
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private logService: LogService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -34,7 +32,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token && !isPublic) {
-      this.logger?.warn('Token is required to access this route');
+      this.logService.logger?.warn('Token is required to access this route');
 
       throw new UnauthorizedException();
     }
@@ -50,7 +48,7 @@ export class AuthGuard implements CanActivate {
     } catch (error) {
       request[DECODED_TOKEN_KEY] = undefined;
 
-      this.logger?.error('Invalid token', error.stack);
+      this.logService.logger?.error('Invalid token', error.stack);
       throw new UnauthorizedException('Invalid Token!');
     }
   }

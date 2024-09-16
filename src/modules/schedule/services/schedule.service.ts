@@ -1,9 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 
 import {
   applyQueryFilters,
   applyOrderByFilters,
 } from 'src/utils/apply-query-filters.utils';
+import { LogService } from 'src/lib/log/log.service';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
 import { CondominiumService } from 'src/modules/condominium/services/condominium.service';
@@ -15,6 +18,7 @@ import {
   createdByAlias,
   schedule_base_fields,
 } from '../entities/schedule.entity';
+import { ScheduleStatus } from '../enums/schedule-status.enum';
 import { scheduleRepository } from '../repositories/schedule.repository';
 import type { CreateSchedulePayload } from '../dtos/create-schedule.dto';
 import type { UpdateSchedulePayload } from '../dtos/update-schedule.dto';
@@ -23,10 +27,86 @@ import type { PaginateSchedulesType } from '../dtos/paginate-schedules.dto';
 @Injectable()
 export class ScheduleService {
   constructor(
+    private readonly logService: LogService,
     private readonly paginationService: PaginationService,
     private readonly condominiumService: CondominiumService,
     private readonly condominiumMemberService: CondominiumMemberService,
+    private schedulerRegistry: SchedulerRegistry,
   ) {}
+
+  private parseScheduledDatetime(scheduled_datetime: string) {
+    const scheduledDate = new Date(scheduled_datetime);
+    const seconds = scheduledDate.getSeconds();
+    const minutes = scheduledDate.getMinutes();
+    const hours = scheduledDate.getHours();
+    const dayOfMonth = scheduledDate.getDate();
+    const month = scheduledDate.getMonth() + 1; // Months in JS are zero-based
+    const dayOfWeek = scheduledDate.getDay();
+
+    return { seconds, minutes, hours, dayOfMonth, month, dayOfWeek };
+  }
+
+  private setupCronJobs(savedSchedule: Schedule) {
+    const { dayOfMonth, dayOfWeek, hours, minutes, month, seconds } =
+      this.parseScheduledDatetime(savedSchedule.scheduled_datetime_start);
+
+    // Set up start cron job
+    const startCronExpression = `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
+
+    const startCronJob = new CronJob(startCronExpression, async () => {
+      try {
+        await scheduleRepository.update(savedSchedule.id, {
+          schedule_status: ScheduleStatus.ONGOING,
+        });
+        this.logService.logger?.log(
+          `Schedule ${savedSchedule.id} is now ongoing.`,
+        );
+      } catch (error) {
+        this.logService.logger?.error(
+          `Failed to update schedule to Ongoing: ${error.message}`,
+        );
+      }
+    });
+
+    this.schedulerRegistry.addCronJob(
+      `schedule-start-${savedSchedule.id}`,
+      startCronJob,
+    );
+    startCronJob.start();
+
+    // Set up end cron job
+    const {
+      dayOfMonth: endDayOfMonth,
+      dayOfWeek: endDayOfWeek,
+      hours: endHours,
+      minutes: endMinutes,
+      month: endMonth,
+      seconds: endSeconds,
+    } = this.parseScheduledDatetime(savedSchedule.scheduled_datetime_end);
+
+    const endCronExpression = `${endSeconds} ${endMinutes} ${endHours} ${endDayOfMonth} ${endMonth} ${endDayOfWeek}`;
+
+    const endCronJob = new CronJob(endCronExpression, async () => {
+      try {
+        await scheduleRepository.update(savedSchedule.id, {
+          schedule_status: ScheduleStatus.FINISHED,
+        });
+        this.logService.logger?.log(
+          `Schedule ${savedSchedule.id} is now finished.`,
+        );
+      } catch (error) {
+        this.logService.logger?.error(
+          `Failed to update schedule to Finished: ${error.message}`,
+        );
+      }
+    });
+
+    this.schedulerRegistry.addCronJob(
+      `schedule-end-${savedSchedule.id}`,
+      endCronJob,
+    );
+    endCronJob.start();
+  }
 
   private createScheduleQueryBuilder() {
     const queryBuilder = scheduleRepository
@@ -37,7 +117,13 @@ export class ScheduleService {
     return queryBuilder;
   }
 
-  private async verifyMembership(userId: string, condominium_id: string) {
+  /**
+   * returns the id of the condominium
+   */
+  private async verifyMembership(
+    userId: string,
+    condominium_id: string,
+  ): Promise<string> {
     const { id } =
       await this.condominiumService.getCondominiumById(condominium_id);
 
@@ -130,7 +216,11 @@ export class ScheduleService {
       ...rest,
     });
 
-    return scheduleRepository.save(scheduleToCreate);
+    const savedSchedule = await scheduleRepository.save(scheduleToCreate);
+
+    this.setupCronJobs(savedSchedule);
+
+    return savedSchedule;
   }
 
   private checkPermission(logged_in_user_id: string, schedule: Schedule) {

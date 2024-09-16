@@ -40,7 +40,11 @@ export class Schedule extends Base {
 
   @Index()
   @Column('timestamp')
-  scheduled_datetime: string;
+  scheduled_datetime_start: string;
+
+  @Index()
+  @Column('timestamp')
+  scheduled_datetime_end: string;
 
   @Column('boolean')
   is_private: boolean;
@@ -99,7 +103,7 @@ export const scheduleAlias = 'schedule';
 export const createdByAlias = 'created_by';
 
 export type ScheduleSelectKey =
-  | `${typeof scheduleAlias}.${keyof Omit<Schedule, 'create' | 'update'>}`
+  | `${typeof scheduleAlias}.${keyof Schedule}`
   | `${typeof createdByAlias}.${keyof User}`;
 
 export const schedule_base_fields: ScheduleSelectKey[] = [
@@ -109,7 +113,8 @@ export const schedule_base_fields: ScheduleSelectKey[] = [
   'schedule.is_private',
   'schedule.participant_limit',
   'schedule.schedule_status',
-  'schedule.scheduled_datetime',
+  'schedule.scheduled_datetime_start',
+  'schedule.scheduled_datetime_end',
   'schedule.schedule_type',
   'schedule.created_at',
   'schedule.updated_at',

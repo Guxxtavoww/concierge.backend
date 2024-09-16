@@ -42,7 +42,11 @@ export class Schedules1726092896242 implements MigrationInterface {
             enum: schedule_types,
           },
           {
-            name: 'scheduled_datetime',
+            name: 'scheduled_datetime_start',
+            type: 'timestamp',
+          },
+          {
+            name: 'scheduled_datetime_end',
             type: 'timestamp',
           },
           {
@@ -102,8 +106,16 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.createIndex(
       'schedules',
       new TableIndex({
-        name: 'IDX_SCHEDULED_DATETIME',
-        columnNames: ['scheduled_datetime'],
+        name: 'IDX_SCHEDULED_DATETIME_START',
+        columnNames: ['scheduled_datetime_start'],
+      }),
+    );
+
+    await queryRunner.createIndex(
+      'schedules',
+      new TableIndex({
+        name: 'IDX_SCHEDULED_DATETIME_END',
+        columnNames: ['scheduled_datetime_end'],
       }),
     );
 
@@ -215,7 +227,8 @@ export class Schedules1726092896242 implements MigrationInterface {
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_DESCRIPTION');
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_STATUS');
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_TYPE');
-    await queryRunner.dropIndex('schedules', 'IDX_SCHEDULED_DATETIME');
+    await queryRunner.dropIndex('schedules', 'IDX_SCHEDULED_DATETIME_START');
+    await queryRunner.dropIndex('schedules', 'IDX_SCHEDULED_DATETIME_END');
     await queryRunner.dropIndex('schedules', 'IDX_SCHEDULE_CONDOMINIUM_ID');
     await queryRunner.dropIndex('schedules', 'IDX_CREATED_BY_ID');
 
