@@ -160,7 +160,8 @@ export class ScheduleService {
     schedule_status,
     schedule_title,
     schedule_type,
-    scheduled_datetime,
+    scheduled_datetime_start,
+    scheduled_datetime_end,
     ...orderByFields
   }: PaginateSchedulesType) {
     const queryBuilder = this.createScheduleQueryBuilder();
@@ -175,7 +176,8 @@ export class ScheduleService {
         schedule_type,
         condominium_id,
         is_private,
-        scheduled_datetime,
+        scheduled_datetime_start,
+        scheduled_datetime_end,
       },
       {
         condominium_id: '=',
@@ -184,7 +186,8 @@ export class ScheduleService {
         schedule_status: '=',
         schedule_title: 'LIKE',
         schedule_type: '=',
-        scheduled_datetime: '>=',
+        scheduled_datetime_start: '<=',
+        scheduled_datetime_end: '>=',
       },
     );
     applyQueryFilters(

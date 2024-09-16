@@ -23,14 +23,31 @@ export const paginateSchedulesSchema = createPaginationSchema({
   schedule_description: optionalStringSchema,
   schedule_status: optionalScheduleStatusSchema,
   schedule_type: optionalScheduleTypeSchema,
-  scheduled_datetime: optionalFutureDatetimeSchema,
+  scheduled_datetime_start: optionalFutureDatetimeSchema,
+  scheduled_datetime_end: optionalFutureDatetimeSchema,
   is_private: optionalBooleanStringSchema,
   condominium_id: optionalUuidSchema,
   created_by_id: optionalUuidSchema,
   order_by_participant_limit: optionalOrderParamSchema,
-}).refine((data) => data.condominium_id || data.created_by_id, {
-  message: 'Pass at least a condominium id or the created by id',
-});
+})
+  .refine((data) => data.condominium_id || data.created_by_id, {
+    message: 'Pass at least a condominium id or the created by id',
+  })
+  .refine(
+    ({ scheduled_datetime_end, scheduled_datetime_start }) => {
+      if (!scheduled_datetime_end && !scheduled_datetime_start) return true;
+
+      if (scheduled_datetime_end && scheduled_datetime_start) {
+        const start = new Date(scheduled_datetime_start);
+        const end = new Date(scheduled_datetime_end);
+
+        return start < end;
+      }
+
+      return false;
+    },
+    { message: 'Start date must be before the end date' },
+  );
 
 export type PaginateSchedulesType = z.infer<typeof paginateSchedulesSchema>;
 
@@ -50,7 +67,10 @@ export class PaginateSchedulesDTO extends createZodDto(
   schedule_type?: ScheduleType;
 
   @ApiPropertyOptional({ example: new Date().toISOString() })
-  scheduled_datetime?: string;
+  scheduled_datetime_start?: string;
+
+  @ApiPropertyOptional({ example: new Date().toISOString() })
+  scheduled_datetime_end?: string;
 
   @ApiPropertyOptional({ type: Boolean })
   is_private?: boolean;
