@@ -9,6 +9,7 @@ import {
 import { LogService } from 'src/lib/log/log.service';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
+import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
 import {
@@ -210,14 +211,46 @@ export class ScheduleService {
     return schedule;
   }
 
+  async getScheduleByDatetimes(
+    condominium_id: string,
+    payload: Pick<
+      CreateSchedulePayload,
+      'scheduled_datetime_end' | 'scheduled_datetime_start'
+    >,
+  ) {
+    const scheduleQueryBuilder = this.createScheduleQueryBuilder();
+
+    applyQueryFilters(
+      scheduleAlias,
+      scheduleQueryBuilder,
+      { ...payload, condominium_id },
+      {
+        scheduled_datetime_end: '>=',
+        scheduled_datetime_start: '<=',
+        condominium_id: '=',
+      },
+    );
+
+    return scheduleQueryBuilder.getOne();
+  }
+
   async createSchedule(
     { condominium_id, ...rest }: CreateSchedulePayload,
     logged_in_user_id: string,
   ) {
-    const validatedId = await this.verifyMembership(
-      logged_in_user_id,
-      condominium_id,
-    );
+    const [validatedId, schedule] = await Promise.all([
+      this.verifyMembership(logged_in_user_id, condominium_id),
+      this.getScheduleByDatetimes(condominium_id, {
+        scheduled_datetime_end: rest.scheduled_datetime_end,
+        scheduled_datetime_start: rest.scheduled_datetime_start,
+      }),
+    ]);
+
+    if (schedule) {
+      throw new ForbiddenException(
+        'A schedule already exists for the selected time range.',
+      );
+    }
 
     const scheduleToCreate = Schedule.create({
       created_by_id: logged_in_user_id,
@@ -249,6 +282,30 @@ export class ScheduleService {
 
     if (payload.condominium_id) {
       await this.verifyMembership(logged_in_user_id, payload.condominium_id);
+    }
+
+    const scheduled_datetime_start =
+      payload.scheduled_datetime_start ||
+      scheduleToUpdate.scheduled_datetime_start;
+
+    const scheduled_datetime_end =
+      payload.scheduled_datetime_end || scheduleToUpdate.scheduled_datetime_end;
+
+    if (
+      new Date(scheduled_datetime_start) >= new Date(scheduled_datetime_end)
+    ) {
+      throw new BadRequestError('Start date must be before the end date');
+    }
+
+    const schedule = await this.getScheduleByDatetimes(
+      payload.condominium_id || scheduleToUpdate.condominium_id,
+      { scheduled_datetime_end, scheduled_datetime_start },
+    );
+
+    if (schedule) {
+      throw new ForbiddenException(
+        'A schedule already exists for the selected time range.',
+      );
     }
 
     return scheduleRepository.manager.transaction(

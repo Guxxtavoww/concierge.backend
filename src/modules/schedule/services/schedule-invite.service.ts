@@ -93,7 +93,7 @@ export class ScheduleInviteService {
     ]);
 
     if (schedule.schedule_status === ScheduleStatus.FINISHED)
-      throw new ForbiddenException('The scheduled already ended');
+      throw new ForbiddenException('The schedule already ended');
 
     if (condominium_member.user_id === logged_in_user_id)
       throw new NotFoundError('Invalid Member');

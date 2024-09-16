@@ -13,32 +13,16 @@ import {
 import { ScheduleType } from '../enums/schedule-type.enum';
 import { optionalScheduleTypeSchema } from '../schemas/schedule-type.schema';
 
-export const updateScheduleSchema = z
-  .object({
-    schedule_title: optionalStringSchema,
-    schedule_description: optionalStringSchema,
-    schedule_type: optionalScheduleTypeSchema,
-    scheduled_datetime_start: optionalFutureDatetimeSchema,
-    scheduled_datetime_end: optionalFutureDatetimeSchema,
-    is_private: optionalBooleanSchema,
-    participant_limit: optionalIntegerNumberSchema,
-    condominium_id: optionalUuidSchema,
-  })
-  .refine(
-    (data) => {
-      if (!data.scheduled_datetime_end || !data.scheduled_datetime_start)
-        return true;
-
-      if (
-        new Date(data.scheduled_datetime_end) >=
-        new Date(data.scheduled_datetime_end)
-      )
-        return false;
-
-      return true;
-    },
-    { message: 'Start date must be before the end date' },
-  );
+export const updateScheduleSchema = z.object({
+  schedule_title: optionalStringSchema,
+  schedule_description: optionalStringSchema,
+  schedule_type: optionalScheduleTypeSchema,
+  scheduled_datetime_start: optionalFutureDatetimeSchema,
+  scheduled_datetime_end: optionalFutureDatetimeSchema,
+  is_private: optionalBooleanSchema,
+  participant_limit: optionalIntegerNumberSchema,
+  condominium_id: optionalUuidSchema,
+});
 
 export type UpdateSchedulePayload = z.infer<typeof updateScheduleSchema>;
 

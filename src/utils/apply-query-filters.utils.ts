@@ -26,7 +26,7 @@ export function applyQueryFilters<
     keyof Filters,
     Filters[keyof Filters],
   ][]) {
-    if (isNullableValue(value) || value === '') continue;
+    if (isNullableValue(value)) continue;
 
     const stringfyedFilterKey = String(filter);
     const filterType = filters_types[filter] as FilterTypes;
