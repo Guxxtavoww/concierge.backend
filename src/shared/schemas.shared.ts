@@ -48,7 +48,9 @@ export const stringToFloatSchema = stringSchema
 
       if (Number.isNaN(numberfyedValue)) return false;
 
-      return !Number.isInteger(numberfyedValue);
+      return !(
+        numberfyedValue % 1 !== 0 || /\.\d+/.test(numberfyedValue.toString())
+      );
     },
     { message: 'Value must be float' },
   )
