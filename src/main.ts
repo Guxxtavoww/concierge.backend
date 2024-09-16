@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import { corsConfig } from './config/cors.config';
-import { ENV_VARIABLES } from './config/env.config';
+import { ENV_VARIABLES, IS_DEV_ENV } from './config/env.config';
 import { DataBaseInterceptor } from './lib/http-exceptions/errors/interceptors/database.interceptor';
 import { NotFoundInterceptor } from './lib/http-exceptions/errors/interceptors/not-found.interceptor';
 import { BadRequestInterceptor } from './lib/http-exceptions/errors/interceptors/bad-request.interceptor';
@@ -33,7 +33,7 @@ async function bootstrap() {
       new DataBaseInterceptor(),
     );
 
-    if (ENV_VARIABLES.ENV === 'dev') {
+    if (IS_DEV_ENV) {
       const [{ SwaggerModule }, { swaggerConfig }, { writeFileSync }] =
         await Promise.all([
           import('@nestjs/swagger'),

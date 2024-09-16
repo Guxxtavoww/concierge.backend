@@ -26,3 +26,5 @@ export const envSchema = z.object({
 export type EnvType = z.infer<typeof envSchema>;
 
 export const ENV_VARIABLES = envSchema.parse(process.env);
+
+export const IS_DEV_ENV = ENV_VARIABLES.ENV === 'dev';
