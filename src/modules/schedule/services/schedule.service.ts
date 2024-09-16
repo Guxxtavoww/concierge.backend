@@ -46,21 +46,18 @@ export class ScheduleService {
     return { seconds, minutes, hours, dayOfMonth, month, dayOfWeek };
   }
 
-  private setupCronJobs(savedSchedule: Schedule) {
+  private setupCronJobs(schedule: Schedule) {
     const { dayOfMonth, dayOfWeek, hours, minutes, month, seconds } =
-      this.parseScheduledDatetime(savedSchedule.scheduled_datetime_start);
+      this.parseScheduledDatetime(schedule.scheduled_datetime_start);
 
-    // Set up start cron job
     const startCronExpression = `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
-
     const startCronJob = new CronJob(startCronExpression, async () => {
       try {
-        await scheduleRepository.update(savedSchedule.id, {
+        await scheduleRepository.update(schedule.id, {
           schedule_status: ScheduleStatus.ONGOING,
         });
-        this.logService.logger?.log(
-          `Schedule ${savedSchedule.id} is now ongoing.`,
-        );
+
+        this.logService.logger?.log(`Schedule ${schedule.id} is now ongoing.`);
       } catch (error) {
         this.logService.logger?.error(
           `Failed to update schedule to Ongoing: ${error.message}`,
@@ -69,12 +66,11 @@ export class ScheduleService {
     });
 
     this.schedulerRegistry.addCronJob(
-      `schedule-start-${savedSchedule.id}`,
+      `schedule-start-${schedule.id}`,
       startCronJob,
     );
     startCronJob.start();
 
-    // Set up end cron job
     const {
       dayOfMonth: endDayOfMonth,
       dayOfWeek: endDayOfWeek,
@@ -82,18 +78,17 @@ export class ScheduleService {
       minutes: endMinutes,
       month: endMonth,
       seconds: endSeconds,
-    } = this.parseScheduledDatetime(savedSchedule.scheduled_datetime_end);
+    } = this.parseScheduledDatetime(schedule.scheduled_datetime_end);
 
     const endCronExpression = `${endSeconds} ${endMinutes} ${endHours} ${endDayOfMonth} ${endMonth} ${endDayOfWeek}`;
 
     const endCronJob = new CronJob(endCronExpression, async () => {
       try {
-        await scheduleRepository.update(savedSchedule.id, {
+        await scheduleRepository.update(schedule.id, {
           schedule_status: ScheduleStatus.FINISHED,
         });
-        this.logService.logger?.log(
-          `Schedule ${savedSchedule.id} is now finished.`,
-        );
+
+        this.logService.logger?.log(`Schedule ${schedule.id} is now finished.`);
       } catch (error) {
         this.logService.logger?.error(
           `Failed to update schedule to Finished: ${error.message}`,
@@ -102,10 +97,26 @@ export class ScheduleService {
     });
 
     this.schedulerRegistry.addCronJob(
-      `schedule-end-${savedSchedule.id}`,
+      `schedule-end-${schedule.id}`,
       endCronJob,
     );
     endCronJob.start();
+  }
+
+  private removeCronJobs(scheduleId: string) {
+    const startJobKey = `schedule-start-${scheduleId}`;
+
+    if (this.schedulerRegistry.doesExist('cron', startJobKey)) {
+      this.schedulerRegistry.deleteCronJob(startJobKey);
+      this.logService.logger?.log(`Removed cron job: ${startJobKey}`);
+    }
+
+    const endJobKey = `schedule-end-${scheduleId}`;
+
+    if (this.schedulerRegistry.doesExist('cron', endJobKey)) {
+      this.schedulerRegistry.deleteCronJob(endJobKey);
+      this.logService.logger?.log(`Removed cron job: ${endJobKey}`);
+    }
   }
 
   private createScheduleQueryBuilder() {
@@ -242,15 +253,35 @@ export class ScheduleService {
       await this.verifyMembership(logged_in_user_id, payload.condominium_id);
     }
 
-    const scheduleItem = Schedule.update(payload);
+    return scheduleRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const updatedSchedule = await transactionalEntityManager.update(
+          Schedule,
+          scheduleToUpdate.id,
+          Schedule.update(payload),
+        );
 
-    return scheduleRepository.update(scheduleToUpdate.id, scheduleItem);
+        if (
+          payload.scheduled_datetime_start ||
+          payload.scheduled_datetime_end
+        ) {
+          this.removeCronJobs(scheduleToUpdate.id);
+
+          const mergedSchedule: Schedule = { ...scheduleToUpdate, ...payload };
+
+          this.setupCronJobs(mergedSchedule);
+        }
+
+        return updatedSchedule;
+      },
+    );
   }
 
   async deleteSchedule(id: string, logged_in_user_id: string) {
     const scheduleToDelete = await this.getScheduleById(id);
 
     this.checkPermission(logged_in_user_id, scheduleToDelete);
+    this.removeCronJobs(scheduleToDelete.id);
 
     return scheduleRepository.remove(scheduleToDelete);
   }
