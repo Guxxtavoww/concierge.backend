@@ -29,7 +29,6 @@ export class ScheduleService {
   constructor(
     private readonly logService: LogService,
     private readonly paginationService: PaginationService,
-    private readonly condominiumService: CondominiumService,
     private readonly condominiumMemberService: CondominiumMemberService,
     private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
