@@ -6,6 +6,7 @@ import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
 
 import { CondominiumMemberService } from '../services/condominium-member.service';
+import { BulkCondominiumMemberDTO } from '../dtos/condominium-member/bulk-condominium-member.dto';
 import { CreateCondominiumMemberDTO } from '../dtos/condominium-member/create-condominium-member.dto';
 import { PaginateCondominiumsMembersDTO } from '../dtos/condominium-member/paginate-condominiums-members.dto';
 
@@ -33,12 +34,27 @@ export class CondominiumMemberController {
     );
   }
 
-  @Post()
+  @Post(':condominium_id')
   createMember(
+    @UuidParam('condominium_id') condominium_id: string,
     @Body() body: CreateCondominiumMemberDTO,
     @DecodedToken() decoded_token: DecodedTokenType,
   ) {
     return this.condominiumMemberService.createCondominiumMember(
+      condominium_id,
+      body,
+      decoded_token.id,
+    );
+  }
+
+  @Post('bulk/:condominium_id')
+  bulkMembers(
+    @UuidParam('condominium_id') condominium_id: string,
+    @Body() body: BulkCondominiumMemberDTO,
+    @DecodedToken() decoded_token: DecodedTokenType,
+  ) {
+    return this.condominiumMemberService.bulkCondominiumMembers(
+      condominium_id,
       body,
       decoded_token.id,
     );

@@ -53,7 +53,12 @@ export class CondominiumMember extends Base {
   @ManyToMany(() => Schedule, (schedule) => schedule.participants)
   events: Schedule[];
 
-  static create(payload: CreateCondominiumMemberPayload & { user_id: string }) {
+  static create(
+    payload: CreateCondominiumMemberPayload & {
+      user_id: string;
+      condominium_id: string;
+    },
+  ) {
     const item = new CondominiumMember();
 
     Object.assign(item, payload);
