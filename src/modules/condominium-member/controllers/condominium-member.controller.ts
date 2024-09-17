@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
@@ -47,6 +47,25 @@ export class CondominiumMemberController {
     );
   }
 
+  @ApiBody({
+    type: [BulkCondominiumMemberDTO],
+    description: 'Array of members to be added',
+    examples: {
+      a: {
+        summary: 'Sample request',
+        value: [
+          {
+            condominium_id: '3f2a1c9a-8d77-4d92-8129-1234abc567de',
+            is_tenant: true,
+          },
+          {
+            condominium_id: 'aabbccdd-1122-3344-5566-77889900aabb',
+            is_tenant: false,
+          },
+        ],
+      },
+    },
+  })
   @Post('bulk/:condominium_id')
   bulkMembers(
     @UuidParam('condominium_id') condominium_id: string,
