@@ -33,6 +33,15 @@ export class ScheduleService {
     private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
+  private createScheduleQueryBuilder() {
+    const queryBuilder = scheduleRepository
+      .createQueryBuilder(scheduleAlias)
+      .leftJoinAndSelect(`${scheduleAlias}.${createdByAlias}`, createdByAlias)
+      .select(schedule_base_fields);
+
+    return queryBuilder;
+  }
+
   private parseScheduledDatetime(scheduled_datetime: string) {
     const scheduledDate = new Date(scheduled_datetime);
     const seconds = scheduledDate.getSeconds();
@@ -119,15 +128,6 @@ export class ScheduleService {
       this.schedulerRegistry.deleteCronJob(endJobKey);
       this.logService.logger?.log(`Removed cron job: ${endJobKey}`);
     }
-  }
-
-  private createScheduleQueryBuilder() {
-    const queryBuilder = scheduleRepository
-      .createQueryBuilder(scheduleAlias)
-      .leftJoinAndSelect(`${scheduleAlias}.${createdByAlias}`, createdByAlias)
-      .select(schedule_base_fields);
-
-    return queryBuilder;
   }
 
   /**
