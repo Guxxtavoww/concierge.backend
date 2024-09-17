@@ -54,25 +54,32 @@ export class ScheduleService {
     return { seconds, minutes, hours, dayOfMonth, month, dayOfWeek };
   }
 
-  private setupCronJobs(schedule: Schedule) {
+  private generateCronExpression(datetime: string): string {
     const { dayOfMonth, dayOfWeek, hours, minutes, month, seconds } =
-      this.parseScheduledDatetime(schedule.scheduled_datetime_start);
+      this.parseScheduledDatetime(datetime);
 
-    const startCronExpression = `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
+    return `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
+  }
 
-    const startCronJob = new CronJob(startCronExpression, async () => {
-      try {
-        await scheduleRepository.update(schedule.id, {
-          schedule_status: ScheduleStatus.ONGOING,
-        });
+  private setupCronJobs(schedule: Schedule) {
+    const startCronJob = new CronJob(
+      this.generateCronExpression(schedule.scheduled_datetime_start),
+      async () => {
+        try {
+          await scheduleRepository.update(schedule.id, {
+            schedule_status: ScheduleStatus.ONGOING,
+          });
 
-        this.logService.logger?.log(`Schedule ${schedule.id} is now ongoing.`);
-      } catch (error) {
-        this.logService.logger?.error(
-          `Failed to update schedule to Ongoing: ${error.message}`,
-        );
-      }
-    });
+          this.logService.logger?.log(
+            `Schedule ${schedule.id} is now ongoing.`,
+          );
+        } catch (error) {
+          this.logService.logger?.error(
+            `Failed to update schedule to Ongoing: ${error.message}`,
+          );
+        }
+      },
+    );
 
     this.schedulerRegistry.addCronJob(
       `schedule-start-${schedule.id}`,
@@ -80,32 +87,26 @@ export class ScheduleService {
     );
     startCronJob.start();
 
-    const {
-      dayOfMonth: endDayOfMonth,
-      dayOfWeek: endDayOfWeek,
-      hours: endHours,
-      minutes: endMinutes,
-      month: endMonth,
-      seconds: endSeconds,
-    } = this.parseScheduledDatetime(schedule.scheduled_datetime_end);
+    const endCronJob = new CronJob(
+      this.generateCronExpression(schedule.scheduled_datetime_end),
+      async () => {
+        try {
+          await scheduleRepository.update(schedule.id, {
+            schedule_status: ScheduleStatus.FINISHED,
+          });
 
-    const endCronExpression = `${endSeconds} ${endMinutes} ${endHours} ${endDayOfMonth} ${endMonth} ${endDayOfWeek}`;
+          this.logService.logger?.log(
+            `Schedule ${schedule.id} is now finished.`,
+          );
 
-    const endCronJob = new CronJob(endCronExpression, async () => {
-      try {
-        await scheduleRepository.update(schedule.id, {
-          schedule_status: ScheduleStatus.FINISHED,
-        });
-
-        this.logService.logger?.log(`Schedule ${schedule.id} is now finished.`);
-
-        this.removeCronJobs(schedule.id);
-      } catch (error) {
-        this.logService.logger?.error(
-          `Failed to update schedule to Finished: ${error.message}`,
-        );
-      }
-    });
+          this.removeCronJobs(schedule.id);
+        } catch (error) {
+          this.logService.logger?.error(
+            `Failed to update schedule to Finished: ${error.message}`,
+          );
+        }
+      },
+    );
 
     this.schedulerRegistry.addCronJob(
       `schedule-end-${schedule.id}`,
