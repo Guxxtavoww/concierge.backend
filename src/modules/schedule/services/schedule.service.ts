@@ -343,12 +343,6 @@ export class ScheduleService {
   }
 
   async addParticipantToSchedule(scheduleId: string, memberId: string) {
-    const scheduleExists = await scheduleRepository
-      .createQueryBuilder('schedule')
-      .select('schedule.id')
-      .where('schedule.id = :scheduleId', { scheduleId })
-      .getOneOrFail();
-
     const member =
       await this.condominiumMemberService.getMembershipById(memberId);
 
