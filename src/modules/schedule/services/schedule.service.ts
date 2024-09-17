@@ -342,26 +342,21 @@ export class ScheduleService {
     });
   }
 
-  async addParticipantToSchedule(
-    scheduleId: string,
-    memberId: string,
-  ): Promise<Schedule> {
-    const schedule = await scheduleRepository.findOne({
-      where: { id: scheduleId },
-      relations: ['participants'], // Make sure participants are fetched
-      select: ['participants'],
-    });
-
-    if (!schedule) {
-      throw new NotFoundError('Schedule not found');
-    }
+  async addParticipantToSchedule(scheduleId: string, memberId: string) {
+    const scheduleExists = await scheduleRepository
+      .createQueryBuilder('schedule')
+      .select('schedule.id')
+      .where('schedule.id = :scheduleId', { scheduleId })
+      .getOneOrFail();
 
     const member =
       await this.condominiumMemberService.getMembershipById(memberId);
 
-    schedule.participants.push(member);
-
-    return scheduleRepository.save(schedule);
+    return scheduleRepository
+      .createQueryBuilder()
+      .relation('participants')
+      .of(scheduleId)
+      .add(member.id);
   }
 
   async deleteSchedule(id: string, logged_in_user_id: string) {
