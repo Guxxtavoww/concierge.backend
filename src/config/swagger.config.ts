@@ -1,9 +1,9 @@
 import { DocumentBuilder } from '@nestjs/swagger';
 
-import { version } from '../../package.json';
+import { version, name } from '../../package.json';
 
 export const swaggerConfig = new DocumentBuilder()
-  .setTitle('ikut-backend')
+  .setTitle(name)
   .setVersion(version)
   .addTag('auth')
   .addTag('user')
