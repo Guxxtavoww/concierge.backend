@@ -312,28 +312,56 @@ export class ScheduleService {
       );
     }
 
-    return scheduleRepository.manager.transaction(
-      async (transactionalEntityManager) => {
-        const updatedSchedule = await transactionalEntityManager.update(
-          Schedule,
-          scheduleToUpdate.id,
-          Schedule.update(payload),
-        );
-
-        if (
-          payload.scheduled_datetime_start ||
-          payload.scheduled_datetime_end
-        ) {
-          this.removeCronJobs(scheduleToUpdate.id);
-
-          const mergedSchedule: Schedule = { ...scheduleToUpdate, ...payload };
-
-          this.setupCronJobs(mergedSchedule);
-        }
-
-        return updatedSchedule;
-      },
+    const updatedSchedule = await scheduleRepository.update(
+      scheduleToUpdate.id,
+      Schedule.update(payload),
     );
+
+    if (payload.scheduled_datetime_start || payload.scheduled_datetime_end) {
+      this.removeCronJobs(scheduleToUpdate.id);
+
+      const mergedSchedule: Schedule = { ...scheduleToUpdate, ...payload };
+
+      this.setupCronJobs(mergedSchedule);
+    }
+
+    return updatedSchedule;
+  }
+
+  async updateScheduleConfirmedParticipantsAmount(
+    schedule: Schedule,
+    type: CountHandler,
+  ) {
+    if (schedule.confirmed_participants_amount === 0 && type === 'decrement')
+      return;
+
+    schedule.confirmed_participants_amount += type === 'increment' ? 1 : -1;
+
+    return scheduleRepository.update(schedule.id, {
+      confirmed_participants_amount: schedule.confirmed_participants_amount,
+    });
+  }
+
+  async addParticipantToSchedule(
+    scheduleId: string,
+    memberId: string,
+  ): Promise<Schedule> {
+    const schedule = await scheduleRepository.findOne({
+      where: { id: scheduleId },
+      relations: ['participants'], // Make sure participants are fetched
+      select: ['participants'],
+    });
+
+    if (!schedule) {
+      throw new NotFoundError('Schedule not found');
+    }
+
+    const member =
+      await this.condominiumMemberService.getMembershipById(memberId);
+
+    schedule.participants.push(member);
+
+    return scheduleRepository.save(schedule);
   }
 
   async deleteSchedule(id: string, logged_in_user_id: string) {

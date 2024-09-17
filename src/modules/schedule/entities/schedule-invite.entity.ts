@@ -53,9 +53,11 @@ export class ScheduleInvite extends Base {
 }
 
 export const scheduleInviteAlias = 'schedule-invite';
+export const scheduleAlias = 'schedule';
 
 export type ScheduleInviteSelectKey =
-  `${typeof scheduleInviteAlias}.${keyof ScheduleInvite}`;
+  | `${typeof scheduleInviteAlias}.${keyof ScheduleInvite}`
+  | `${typeof scheduleAlias}.${keyof Schedule}`;
 
 export const schedule_invite_base_fields: ScheduleInviteSelectKey[] = [
   'schedule-invite.id',
@@ -63,6 +65,9 @@ export const schedule_invite_base_fields: ScheduleInviteSelectKey[] = [
   'schedule-invite.schedule_invite_status',
   'schedule-invite.updated_at',
   'schedule-invite.created_at',
-  'schedule-invite.schedule_id',
   'schedule-invite.condominium_id',
+  'schedule.id',
+  'schedule.schedule_status',
+  'schedule.confirmed_participants_amount',
+  'schedule.participant_limit',
 ];

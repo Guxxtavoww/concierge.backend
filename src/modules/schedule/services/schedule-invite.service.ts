@@ -13,6 +13,7 @@ import {
   ScheduleInvite,
   scheduleInviteAlias,
   schedule_invite_base_fields,
+  scheduleAlias,
 } from '../entities/schedule-invite.entity';
 import { ScheduleService } from './schedule.service';
 import { ScheduleStatus } from '../enums/schedule-status.enum';
@@ -33,6 +34,10 @@ export class ScheduleInviteService {
   private createScheduleInviteQueryBuilder() {
     return scheduleInviteRepository
       .createQueryBuilder(scheduleInviteAlias)
+      .leftJoinAndSelect(
+        `${scheduleInviteAlias}.${scheduleAlias}`,
+        scheduleAlias,
+      )
       .select(schedule_invite_base_fields);
   }
 
@@ -41,15 +46,22 @@ export class ScheduleInviteService {
     page,
     order_by_created_at,
     order_by_updated_at,
+    schedule_id,
     ...filters
   }: PaginateSchedulesInvitesType) {
     const queryBuilder = this.createScheduleInviteQueryBuilder();
 
     applyQueryFilters(scheduleInviteAlias, queryBuilder, filters, {
-      schedule_id: '=',
       condominium_member_id: '=',
       schedule_invite_status: '=',
     });
+
+    applyQueryFilters(
+      scheduleAlias,
+      queryBuilder,
+      { id: schedule_id },
+      { id: '=' },
+    );
 
     applyOrderByFilters(scheduleInviteAlias, queryBuilder, {
       order_by_created_at,
@@ -72,7 +84,7 @@ export class ScheduleInviteService {
     return invitation;
   }
 
-  async updateScheudleInviteStatus(id: string, status: ScheduleInviteStatus) {
+  async updateScheduleInviteStatus(id: string, status: ScheduleInviteStatus) {
     return scheduleInviteRepository.update(id, {
       schedule_invite_status: status,
     });
@@ -92,17 +104,26 @@ export class ScheduleInviteService {
       this.condominiumMemberService.getMembershipById(condominium_member_id),
     ]);
 
+    if (
+      schedule.participant_limit &&
+      schedule.participant_limit <= schedule.confirmed_participants_amount
+    ) {
+      throw new ForbiddenException('The schedule is full');
+    }
+
     if (schedule.schedule_status === ScheduleStatus.FINISHED)
-      throw new ForbiddenException('The schedule already ended');
+      throw new ForbiddenException('The schedule has already ended');
 
     if (condominium_member.user_id === logged_in_user_id)
-      throw new NotFoundError('Invalid Member');
+      throw new NotFoundError('Cannot invite yourself');
 
     if (
       schedule.is_private &&
       condominium_member.condominium_id !== condominium.id
     ) {
-      throw new ForbiddenException('Not a member of this condominium');
+      throw new ForbiddenException(
+        'The member is not part of the same condominium',
+      );
     }
 
     const scheduleInviteToCreate = ScheduleInvite.create({
@@ -131,11 +152,26 @@ export class ScheduleInviteService {
     if (membership.user_id !== logged_in_user_id)
       throw new ForbiddenException('Cant accept this invitation.');
 
-    return this.updateScheudleInviteStatus(
+    const res = await this.updateScheduleInviteStatus(
       invitation.id,
       action === 'accept'
         ? ScheduleInviteStatus.ACCEPTED
         : ScheduleInviteStatus.DECLINED,
     );
+
+    if (action === 'accept') {
+      await Promise.all([
+        this.scheduleService.updateScheduleConfirmedParticipantsAmount(
+          invitation.schedule,
+          'increment',
+        ),
+        this.scheduleService.addParticipantToSchedule(
+          invitation.schedule.id,
+          membership.id,
+        ),
+      ]);
+    }
+
+    return res;
   }
 }

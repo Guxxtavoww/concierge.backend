@@ -59,6 +59,11 @@ export class Schedules1726092896242 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: 'confirmed_participants_amount',
+            type: 'int',
+            default: 0,
+          },
+          {
             name: 'condominium_id',
             type: 'uuid',
           },

@@ -52,6 +52,9 @@ export class Schedule extends Base {
   @Column('int', { nullable: true })
   participant_limit: NullableValue<number>;
 
+  @Column('int', { default: 0 })
+  confirmed_participants_amount: number;
+
   @Index()
   @Column('uuid')
   condominium_id: string;
