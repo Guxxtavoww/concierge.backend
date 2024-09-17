@@ -130,6 +130,7 @@ export class CondominiumMemberService {
     { is_tenant, user_id }: CreateCondominiumMemberPayload,
     logged_in_user_id: string,
     condominium_arg?: Condominium,
+    skipMembershipValidation?: boolean,
   ): Promise<CondominiumMember> {
     const condominium =
       condominium_arg ||
@@ -138,13 +139,17 @@ export class CondominiumMemberService {
     if (condominium.manager_id !== logged_in_user_id)
       throw new ForbiddenException('Cant add members');
 
-    const isMember = !!(await this.getMembershipByUserIdAndCondominiumId(
-      user_id,
-      condominium.id,
-    ));
+    if (!skipMembershipValidation) {
+      const isMember = !!(await this.getMembershipByUserIdAndCondominiumId(
+        user_id,
+        condominium.id,
+      ));
 
-    if (isMember)
-      throw new ForbiddenException('Already are a member of this condominium');
+      if (isMember)
+        throw new ForbiddenException(
+          'Already are a member of this condominium',
+        );
+    }
 
     const condominiumMemberToCreate = CondominiumMember.create({
       condominium_id: condominium.id,
@@ -187,6 +192,7 @@ export class CondominiumMemberService {
             condominiumMember,
             logged_in_user_id,
             condominium,
+            true,
           ),
         ),
       );
