@@ -153,8 +153,6 @@ export class CondominiumService {
     await this.condominiumMemberService.createCondominiumMember(
       savedCondominium.id,
       { is_tenant: true, user_id: savedCondominium.manager_id },
-      savedCondominium.manager_id,
-      savedCondominium,
     );
 
     return savedCondominium;

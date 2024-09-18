@@ -5,6 +5,7 @@ import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
+import { MembershipInvitation } from 'src/modules/condominium-member/entities/membership-invitation.entity';
 
 import type { UpdateUserPayload } from '../dtos/update-user.dto';
 import type { CreateUserPayload } from '../dtos/create-user.dto';
@@ -34,6 +35,9 @@ export class User extends Base {
 
   @OneToMany(() => CondominiumMember, (member) => member.user)
   memberships: CondominiumMember[];
+
+  @OneToMany(() => MembershipInvitation, (membership) => membership.user)
+  memberships_invitations: MembershipInvitation[];
 
   @OneToMany(() => Schedule, (schedule) => schedule.created_by)
   created_schedules: Schedule[];

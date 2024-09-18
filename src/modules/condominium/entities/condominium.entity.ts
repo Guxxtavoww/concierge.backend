@@ -12,6 +12,7 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 import { ScheduleInvite } from 'src/modules/schedule/entities/schedule-invite.entity';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
+import { MembershipInvitation } from 'src/modules/condominium-member/entities/membership-invitation.entity';
 
 import type { CreateCondominiumType } from '../dtos/create-condominium.dto';
 import type { UpdateCondominiumType } from '../dtos/update-condominium.dto';
@@ -141,18 +142,27 @@ export class Condominium extends Base {
   /**
    * The user entity associated with the manager of the condominium.
    */
-  @OneToOne(() => User)
+  @OneToMany(() => User, (user) => user.condominiums)
   @JoinColumn({ name: 'manager_id' })
   manager: User;
 
   @OneToMany(() => CondominiumMember, (member) => member.condominium)
   members: CondominiumMember[];
 
+  @OneToMany(
+    () => MembershipInvitation,
+    (membershipInvitation) => membershipInvitation.condominium,
+  )
+  membership_invites: MembershipInvitation[];
+
   @OneToMany(() => Schedule, (schedule) => schedule.condominium)
   schedules: Schedule[];
 
-  @OneToMany(() => ScheduleInvite, (scheduleInvite) => scheduleInvite.condominium)
-  invites: ScheduleInvite[];
+  @OneToMany(
+    () => ScheduleInvite,
+    (scheduleInvite) => scheduleInvite.condominium,
+  )
+  schedules_invites: ScheduleInvite[];
 
   static create(payload: CreateCondominiumType & { manager_id: string }) {
     const item = new Condominium();

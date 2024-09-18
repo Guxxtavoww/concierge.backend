@@ -209,7 +209,7 @@ export class Schedules1726092896242 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['condominium_member_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'condominium_members',
+        referencedTableName: 'condominium-members',
         onDelete: 'CASCADE',
       }),
     );

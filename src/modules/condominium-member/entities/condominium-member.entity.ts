@@ -18,7 +18,7 @@ import { ScheduleInvite } from 'src/modules/schedule/entities/schedule-invite.en
 import { Profession } from './profession.entity';
 import type { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
 
-@Entity('condominiums-members')
+@Entity('condominium-members')
 export class CondominiumMember extends Base {
   @Index()
   @Column('uuid')

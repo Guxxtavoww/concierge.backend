@@ -3,7 +3,6 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
 } from '@nestjs/common';
 
 import {
@@ -11,10 +10,8 @@ import {
   applyQueryFilters,
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
-import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
 import { CondominiumService } from 'src/modules/condominium/services/condominium.service';
-import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 
 import {
   alias,
@@ -25,7 +22,7 @@ import {
 import { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
 import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
 import { PaginateCondominiumsMembersPayload } from '../dtos/condominium-member/paginate-condominiums-members.dto';
-import type { BulkCondominiumMemberType } from '../dtos/condominium-member/bulk-condominium-member.dto';
+import type { UpdateIsTenantType } from '../dtos/condominium-member/update-is-tenant.dto';
 
 @Injectable()
 export class CondominiumMemberService {
@@ -73,7 +70,7 @@ export class CondominiumMemberService {
     });
   }
 
-  async getMembershipById(id: string) {
+  async getCondominiumMemberById(id: string) {
     const membership = await this.createCondominiumMemberQueryBuilder()
       .where(`${alias}.id = :id`, { id })
       .getOne();
@@ -111,6 +108,21 @@ export class CondominiumMemberService {
     return result;
   }
 
+  async getMembershipsByUserIdsAndCondominiumId(
+    condominium_id: string,
+    user_ids: string[],
+  ): Promise<Pick<CondominiumMember, 'condominium_id' | 'user_id'>[]> {
+    const results = await this.createPerfomaticCondominiumMemberQueryBuilder()
+      .where(`${alias}.condominium_id = :condominium_id`, { condominium_id })
+      .andWhere(`${alias}.user_id IN (:...user_ids)`, {
+        user_ids,
+      })
+      .take(user_ids.length)
+      .getMany();
+
+    return results;
+  }
+
   async getMembershipByUserIdAndCondominiumId(
     user_id: string,
     condominium_id: string,
@@ -128,79 +140,22 @@ export class CondominiumMemberService {
   async createCondominiumMember(
     condominium_id: string,
     { is_tenant, user_id }: CreateCondominiumMemberPayload,
-    logged_in_user_id: string,
-    condominium_arg?: Condominium,
-    skipMembershipValidation?: boolean,
-  ): Promise<CondominiumMember> {
-    const condominium =
-      condominium_arg ||
-      (await this.condominiumService.getCondominiumById(condominium_id));
-
-    if (condominium.manager_id !== logged_in_user_id)
-      throw new ForbiddenException('Cant add members');
-
-    if (!skipMembershipValidation) {
-      const isMember = !!(await this.getMembershipByUserIdAndCondominiumId(
-        user_id,
-        condominium.id,
-      ));
-
-      if (isMember)
-        throw new ForbiddenException(
-          'Already are a member of this condominium',
-        );
-    }
-
-    const condominiumMemberToCreate = CondominiumMember.create({
-      condominium_id: condominium.id,
-      user_id,
+  ) {
+    const item = CondominiumMember.create({
+      condominium_id,
       is_tenant,
+      user_id,
     });
 
-    const savedMember = await condominiumMemberRepository.save(
-      condominiumMemberToCreate,
-    );
-
-    await this.condominiumService.updateTotalMemberCount(
-      condominium,
-      'increment',
-    );
-
-    return savedMember;
+    return condominiumMemberRepository.save(item);
   }
 
-  async bulkCondominiumMembers(
-    condominium_id: string,
-    payload: BulkCondominiumMemberType,
-    logged_in_user_id: string,
-  ) {
-    const condominium =
-      await this.condominiumService.getCondominiumById(condominium_id);
+  async updateIsTenant(id: string, { is_tenant }: UpdateIsTenantType) {
+    const member = await this.getCondominiumMemberById(id);
 
-    if (
-      condominium.total_member_count + payload.length >
-      condominium.max_tenants_amount
-    ) {
-      throw new BadRequestError('Exceeds maximum number of members');
-    }
-
-    try {
-      const results = await Promise.all(
-        payload.map((condominiumMember) =>
-          this.createCondominiumMember(
-            condominium_id,
-            condominiumMember,
-            logged_in_user_id,
-            condominium,
-            true,
-          ),
-        ),
-      );
-
-      return results;
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
+    return condominiumMemberRepository.update(member.id, {
+      is_tenant,
+    });
   }
 
   async deleteMembership(id: string, logged_in_user_id: string) {
@@ -208,7 +163,7 @@ export class CondominiumMemberService {
       user_id,
       id: membershipToDeleteId,
       condominium_id,
-    } = await this.getMembershipById(id);
+    } = await this.getCondominiumMemberById(id);
 
     if (user_id !== logged_in_user_id) {
       throw new ForbiddenException('Not Allowed');

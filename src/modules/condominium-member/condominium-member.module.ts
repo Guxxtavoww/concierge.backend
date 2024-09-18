@@ -7,11 +7,14 @@ import { CondominiumMemberService } from './services/condominium-member.service'
 import { ProfessionCategoryService } from './services/profession-category.service';
 import { CondominiumMemberController } from './controllers/condominium-member.controller';
 import { ProfessionCategoryController } from './controllers/profession-category.controller';
+import { MembershipInvitationController } from './controllers/membership-invitation.controller';
+import { MembershipInvitationService } from './services/membership-invitation.service';
 
 const providers = [
   CondominiumMemberService,
   ProfessionCategoryService,
   ProfessionService,
+  MembershipInvitationService
 ];
 
 @Module({
@@ -20,6 +23,7 @@ const providers = [
     CondominiumMemberController,
     ProfessionController,
     ProfessionCategoryController,
+    MembershipInvitationController,
   ],
   providers,
   exports: providers,

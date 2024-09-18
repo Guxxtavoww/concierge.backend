@@ -37,7 +37,7 @@ export class ScheduleInvite extends Base {
   @JoinColumn({ name: 'condominium_member_id' })
   member: CondominiumMember;
 
-  @ManyToOne(() => Condominium, (condominium) => condominium.invites)
+  @ManyToOne(() => Condominium, (condominium) => condominium.schedules_invites)
   @JoinColumn({ name: 'condominium_id' })
   condominium: Condominium;
 

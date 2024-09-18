@@ -12,7 +12,7 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'condominiums-members',
+        name: 'condominium-members',
         columns: [
           ...baseColumns,
           {
@@ -34,7 +34,7 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
     );
 
     await queryRunner.createIndex(
-      'condominiums-members',
+      'condominium-members',
       new TableIndex({
         name: 'IDX_CONDOMINIUM_ID',
         columnNames: ['condominium_id'],
@@ -42,7 +42,7 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
     );
 
     await queryRunner.createIndex(
-      'condominiums-members',
+      'condominium-members',
       new TableIndex({
         name: 'IDX_USER_ID',
         columnNames: ['user_id'],
@@ -50,7 +50,7 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'condominiums-members',
+      'condominium-members',
       new TableForeignKey({
         columnNames: ['user_id'],
         referencedColumnNames: ['id'],
@@ -60,7 +60,7 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'condominiums-members',
+      'condominium-members',
       new TableForeignKey({
         columnNames: ['condominium_id'],
         referencedColumnNames: ['id'],
@@ -93,7 +93,7 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['condominium_member_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'condominiums-members',
+        referencedTableName: 'condominium-members',
         onDelete: 'CASCADE',
       }),
     );
@@ -149,19 +149,19 @@ export class CondominiumsMembers1726061564640 implements MigrationInterface {
       await queryRunner.dropTable('condominium-member-professions');
     }
 
-    // Remover foreign keys e tabela 'condominiums-members'
-    const tableMembers = await queryRunner.getTable('condominiums-members');
+    // Remover foreign keys e tabela 'condominium-members'
+    const tableMembers = await queryRunner.getTable('condominium-members');
 
     if (tableMembers) {
       const foreignKeysMembers = tableMembers.foreignKeys;
       for (const fk of foreignKeysMembers) {
-        await queryRunner.dropForeignKey('condominiums-members', fk);
+        await queryRunner.dropForeignKey('condominium-members', fk);
       }
 
-      await queryRunner.dropIndex('condominiums-members', 'IDX_CONDOMINIUM_ID');
-      await queryRunner.dropIndex('condominiums-members', 'IDX_USER_ID');
+      await queryRunner.dropIndex('condominium-members', 'IDX_CONDOMINIUM_ID');
+      await queryRunner.dropIndex('condominium-members', 'IDX_USER_ID');
 
-      await queryRunner.dropTable('condominiums-members');
+      await queryRunner.dropTable('condominium-members');
     }
   }
 }

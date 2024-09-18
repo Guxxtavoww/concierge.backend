@@ -6,6 +6,7 @@ import {
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
+import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 import { CondominiumService } from 'src/modules/condominium/services/condominium.service';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
@@ -84,6 +85,33 @@ export class ScheduleInviteService {
     return invitation;
   }
 
+  async getPendingScheduleInviteByAllFields(
+    schedule_id: string,
+    condominium_member_id: string,
+    condominium_id: string,
+  ) {
+    const queryBuilder = this.createScheduleInviteQueryBuilder();
+
+    applyQueryFilters(
+      scheduleAlias,
+      queryBuilder,
+      {
+        schedule_id,
+        condominium_member_id,
+        condominium_id,
+        schedule_invite_status: ScheduleInviteStatus.PENDING,
+      },
+      {
+        condominium_id: '=',
+        condominium_member_id: '=',
+        schedule_id: '=',
+        schedule_invite_status: '=',
+      },
+    );
+
+    return queryBuilder.getOne();
+  }
+
   async updateScheduleInviteStatus(id: string, status: ScheduleInviteStatus) {
     return scheduleInviteRepository.update(id, {
       schedule_invite_status: status,
@@ -101,8 +129,18 @@ export class ScheduleInviteService {
     const [schedule, condominium, condominium_member] = await Promise.all([
       this.scheduleService.getScheduleById(schedule_id),
       this.condominiumService.getCondominiumById(condominium_id),
-      this.condominiumMemberService.getMembershipById(condominium_member_id),
+      this.condominiumMemberService.getCondominiumMemberById(
+        condominium_member_id,
+      ),
     ]);
+
+    const scheduleInvite = await this.getPendingScheduleInviteByAllFields(
+      schedule.id,
+      condominium_member.id,
+      condominium.id,
+    );
+
+    if (scheduleInvite) throw new BadRequestError('Already invited');
 
     if (
       schedule.participant_limit &&

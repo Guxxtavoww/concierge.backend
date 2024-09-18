@@ -344,7 +344,7 @@ export class ScheduleService {
 
   async addParticipantToSchedule(scheduleId: string, memberId: string) {
     const member =
-      await this.condominiumMemberService.getMembershipById(memberId);
+      await this.condominiumMemberService.getCondominiumMemberById(memberId);
 
     return scheduleRepository
       .createQueryBuilder()
