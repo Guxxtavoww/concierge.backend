@@ -100,9 +100,17 @@ export class ProfessionService {
       ]);
   }
 
-  async assignProfessionToMember(
+  private updateMemberProfessions(
+    condominium_member_id: string,
+    professions: Profession[],
+  ) {
+    return condominiumMemberRepository.update(condominium_member_id, {
+      professions,
+    });
+  }
+
+  private async getCondominiumMemberProfessionByIdAndLoggedInUserId(
     member_id: string,
-    profession_id: number,
     logged_in_user_id: string,
   ) {
     const condominium_member = await this.professionQueryBuilder()
@@ -112,6 +120,45 @@ export class ProfessionService {
 
     if (!condominium_member)
       throw new NotFoundError('Member not found or access denied');
+
+    return condominium_member;
+  }
+
+  async removeProfessionsFromMember(
+    member_id: string,
+    profession_ids: number[],
+    logged_in_user_id: string,
+  ) {
+    const condominium_member =
+      await this.getCondominiumMemberProfessionByIdAndLoggedInUserId(
+        member_id,
+        logged_in_user_id,
+      );
+
+    const filteredProfessions = condominium_member.professions.filter(
+      (existingProfession) => !profession_ids.includes(existingProfession.id),
+    );
+
+    condominium_member.professions = filteredProfessions;
+
+    await this.updateMemberProfessions(
+      condominium_member.id,
+      condominium_member.professions,
+    );
+
+    return condominium_member.professions;
+  }
+
+  async assignProfessionToMember(
+    member_id: string,
+    profession_id: number,
+    logged_in_user_id: string,
+  ) {
+    const condominium_member =
+      await this.getCondominiumMemberProfessionByIdAndLoggedInUserId(
+        member_id,
+        logged_in_user_id,
+      );
 
     for (const existingProfession of condominium_member.professions) {
       if (existingProfession.id === profession_id) {
@@ -123,9 +170,10 @@ export class ProfessionService {
 
     condominium_member.professions.push(profession);
 
-    await condominiumMemberRepository.update(condominium_member.id, {
-      professions: condominium_member.professions,
-    });
+    await this.updateMemberProfessions(
+      condominium_member.id,
+      condominium_member.professions,
+    );
 
     return condominium_member.professions;
   }
