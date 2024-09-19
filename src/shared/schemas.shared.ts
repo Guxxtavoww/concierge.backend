@@ -15,12 +15,14 @@ export const uuidSchema = stringSchema.uuid();
 export const orderParamSchema = z.enum(['ASC', 'DESC']);
 export const genderStringSchema = z.enum(['M', 'F']);
 export const integerNumberSchema = numberSchema.int();
-export const floatNumberSchema = numberSchema.refine(
-  (val) => {
-    return !(val % 1 !== 0 || /\.\d+/.test(val.toString()));
-  },
-  { message: 'Value must be float' },
-);
+export const floatNumberSchema = numberSchema
+  .refine(
+    (val) => {
+      return !(val % 1 !== 0 || /\.\d+/.test(val.toString()));
+    },
+    { message: 'Value must be float' },
+  )
+  .transform((value) => parseFloat(String(value)));
 
 export const booleanSchema = z.boolean();
 
