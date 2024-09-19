@@ -55,7 +55,6 @@ export class CondominiumMember extends Base {
 
   static create(
     payload: CreateCondominiumMemberPayload & {
-      user_id: string;
       condominium_id: string;
     },
   ) {

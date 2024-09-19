@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import {
   applyOrderByFilters,
@@ -22,7 +18,6 @@ import { professionRepository } from '../repositories/profession.repository';
 import type { ListProfessionsPayload } from '../dtos/profession/list-professions.dto';
 import type { CreateProfessionPayload } from '../dtos/profession/create-profession.dto';
 import type { UpdateProfessionPayload } from '../dtos/profession/update-profession.dto';
-import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
 
 @Injectable()
 export class ProfessionService {
@@ -68,6 +63,14 @@ export class ProfessionService {
     return profession;
   }
 
+  async getProfessionsById(ids: number[]) {
+    const professions = await this.createProfessionQueryBuilder()
+      .where(`${professionAlias}.id IN (:...ids)`, { ids })
+      .getMany();
+
+    return professions;
+  }
+
   async createProfession({
     name,
     profession_category_id,
@@ -85,97 +88,6 @@ export class ProfessionService {
     });
 
     return professionRepository.save(professionToCreate);
-  }
-
-  private professionQueryBuilder() {
-    return condominiumMemberRepository
-      .createQueryBuilder('member')
-      .leftJoinAndSelect('member.professions', 'profession')
-      .select([
-        'member.id',
-        'member.user_id',
-        'profession.id',
-        'profession.name',
-        'profession.profession_category_id',
-      ]);
-  }
-
-  private updateMemberProfessions(
-    condominium_member_id: string,
-    professions: Profession[],
-  ) {
-    return condominiumMemberRepository.update(condominium_member_id, {
-      professions,
-    });
-  }
-
-  private async getCondominiumMemberProfessionByIdAndLoggedInUserId(
-    member_id: string,
-    logged_in_user_id: string,
-  ) {
-    const condominium_member = await this.professionQueryBuilder()
-      .where('member.id = :member_id', { member_id })
-      .andWhere('member.user_id = :logged_in_user_id', { logged_in_user_id })
-      .getOne();
-
-    if (!condominium_member)
-      throw new NotFoundError('Member not found or access denied');
-
-    return condominium_member;
-  }
-
-  async removeProfessionsFromMember(
-    member_id: string,
-    profession_ids: number[],
-    logged_in_user_id: string,
-  ) {
-    const condominium_member =
-      await this.getCondominiumMemberProfessionByIdAndLoggedInUserId(
-        member_id,
-        logged_in_user_id,
-      );
-
-    const filteredProfessions = condominium_member.professions.filter(
-      (existingProfession) => !profession_ids.includes(existingProfession.id),
-    );
-
-    condominium_member.professions = filteredProfessions;
-
-    await this.updateMemberProfessions(
-      condominium_member.id,
-      condominium_member.professions,
-    );
-
-    return condominium_member.professions;
-  }
-
-  async assignProfessionToMember(
-    member_id: string,
-    profession_id: number,
-    logged_in_user_id: string,
-  ) {
-    const condominium_member =
-      await this.getCondominiumMemberProfessionByIdAndLoggedInUserId(
-        member_id,
-        logged_in_user_id,
-      );
-
-    for (const existingProfession of condominium_member.professions) {
-      if (existingProfession.id === profession_id) {
-        throw new BadRequestException('Profession already assigned to member');
-      }
-    }
-
-    const profession = await this.getProfessionById(profession_id);
-
-    condominium_member.professions.push(profession);
-
-    await this.updateMemberProfessions(
-      condominium_member.id,
-      condominium_member.professions,
-    );
-
-    return condominium_member.professions;
   }
 
   async updateProfession(id: number, payload: UpdateProfessionPayload) {

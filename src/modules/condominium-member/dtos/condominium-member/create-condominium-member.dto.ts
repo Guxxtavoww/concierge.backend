@@ -2,7 +2,11 @@ import { z } from 'nestjs-zod/z';
 import { createZodDto } from 'nestjs-zod';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { optionalBooleanSchema, uuidSchema } from 'src/shared/schemas.shared';
+import {
+  uuidSchema,
+  optionalBooleanSchema,
+} from 'src/shared/schemas.shared';
+
 
 export const createCondominiumMemberSchema = z.object({
   is_tenant: optionalBooleanSchema.default(false),

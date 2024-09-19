@@ -1,8 +1,9 @@
 import {
-  ForbiddenException,
-  forwardRef,
   Inject,
+  forwardRef,
   Injectable,
+  ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import {
@@ -19,10 +20,13 @@ import {
   CondominiumMember,
   perfomatic_fields,
 } from '../entities/condominium-member.entity';
-import { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
-import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
-import { PaginateCondominiumsMembersPayload } from '../dtos/condominium-member/paginate-condominiums-members.dto';
+import { ProfessionService } from './profession.service';
+import { Profession } from '../entities/profession.entity';
 import type { UpdateIsTenantType } from '../dtos/condominium-member/update-is-tenant.dto';
+import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
+import { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
+import { PaginateCondominiumsMembersPayload } from '../dtos/condominium-member/paginate-condominiums-members.dto';
+import type { AssignOrRemoveProfessionsType } from '../dtos/condominium-member/assign-or-remove-professions.dto';
 
 @Injectable()
 export class CondominiumMemberService {
@@ -30,6 +34,7 @@ export class CondominiumMemberService {
     private readonly paginationService: PaginationService,
     @Inject(forwardRef(() => CondominiumService))
     private readonly condominiumService: CondominiumService,
+    private readonly professionService: ProfessionService,
   ) {}
 
   private createCondominiumMemberQueryBuilder() {
@@ -90,24 +95,6 @@ export class CondominiumMemberService {
     return membership;
   }
 
-  async getMemberProfessions(
-    id: string,
-  ): Promise<Pick<CondominiumMember, 'professions' | 'user_id' | 'id'>> {
-    const result = await condominiumMemberRepository.findOne({
-      where: { id },
-      relations: ['professions'],
-      select: {
-        professions: true,
-        user_id: true,
-        id: true,
-      },
-    });
-
-    if (!result) throw new NotFoundError();
-
-    return result;
-  }
-
   async getMembershipsByUserIdsAndCondominiumId(
     condominium_id: string,
     user_ids: string[],
@@ -148,6 +135,101 @@ export class CondominiumMemberService {
     });
 
     return condominiumMemberRepository.save(item);
+  }
+
+  private professionQueryBuilder() {
+    return condominiumMemberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.professions', 'profession')
+      .select([
+        'member.id',
+        'member.user_id',
+        'profession.id',
+        'profession.name',
+        'profession.profession_category_id',
+      ]);
+  }
+
+  private updateMemberProfessions(
+    condominium_member_id: string,
+    professions: Profession[],
+  ) {
+    return condominiumMemberRepository.update(condominium_member_id, {
+      professions,
+    });
+  }
+
+  async getCondominiumMemberProfessionsByIdAndLoggedInUserId(
+    member_id: string,
+    logged_in_user_id: string,
+  ) {
+    const condominium_member = await this.professionQueryBuilder()
+      .where('member.id = :member_id', { member_id })
+      .andWhere('member.user_id = :logged_in_user_id', { logged_in_user_id })
+      .getOne();
+
+    if (!condominium_member)
+      throw new NotFoundError('Member not found or access denied');
+
+    return condominium_member;
+  }
+
+  async removeProfessionsFromMember(
+    member_id: string,
+    profession_ids: AssignOrRemoveProfessionsType,
+    logged_in_user_id: string,
+  ) {
+    const condominium_member =
+      await this.getCondominiumMemberProfessionsByIdAndLoggedInUserId(
+        member_id,
+        logged_in_user_id,
+      );
+
+    const filteredProfessions = condominium_member.professions.filter(
+      (existingProfession) => !profession_ids.includes(existingProfession.id),
+    );
+
+    condominium_member.professions = filteredProfessions;
+
+    await this.updateMemberProfessions(
+      condominium_member.id,
+      condominium_member.professions,
+    );
+
+    return condominium_member.professions;
+  }
+
+  async assignProfessionsToMember(
+    member_id: string,
+    professions_id: AssignOrRemoveProfessionsType,
+    logged_in_user_id: string,
+  ) {
+    const condominium_member =
+      await this.getCondominiumMemberProfessionsByIdAndLoggedInUserId(
+        member_id,
+        logged_in_user_id,
+      );
+
+    for (const existingProfession of condominium_member.professions) {
+      if (professions_id.includes(existingProfession.id)) {
+        throw new BadRequestException('Profession already assigned to member');
+      }
+    }
+
+    const professions =
+      await this.professionService.getProfessionsById(professions_id);
+
+    condominium_member.professions = [
+      ...condominium_member.professions,
+      ...professions,
+    ];
+
+    await this.updateMemberProfessions(
+      condominium_member.id,
+      condominium_member.professions,
+    );
+
+    return condominium_member.professions;
   }
 
   async updateIsTenant(id: string, { is_tenant }: UpdateIsTenantType) {
