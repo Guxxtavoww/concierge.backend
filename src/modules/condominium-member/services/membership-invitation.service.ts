@@ -208,7 +208,7 @@ export class MembershipInvitationService {
 
       return membershipInvitationRepository.save(invitesToCreate);
     } catch (err) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Failed to send bulk invitations');
     }
   }
 
