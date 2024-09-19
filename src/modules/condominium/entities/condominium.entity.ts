@@ -191,7 +191,7 @@ export type CondominiumSelectKey = `${typeof alias}.${keyof Condominium}`;
 /**
  * The base fields that can be selected from the condominium entity.
  */
-export const base_fields: CondominiumSelectKey[] = [
+export const base_fields = [
   'condominium.id',
   'condominium.description',
   'condominium.manager_id',
@@ -209,4 +209,4 @@ export const base_fields: CondominiumSelectKey[] = [
   'condominium.total_units',
   'condominium.year_built',
   'condominium.total_member_count',
-];
+] satisfies CondominiumSelectKey[];

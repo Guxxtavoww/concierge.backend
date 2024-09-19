@@ -59,7 +59,7 @@ export type ScheduleInviteSelectKey =
   | `${typeof scheduleInviteAlias}.${keyof ScheduleInvite}`
   | `${typeof scheduleAlias}.${keyof Schedule}`;
 
-export const schedule_invite_base_fields: ScheduleInviteSelectKey[] = [
+export const schedule_invite_base_fields = [
   'schedule-invite.id',
   'schedule-invite.condominium_member_id',
   'schedule-invite.schedule_invite_status',
@@ -70,4 +70,4 @@ export const schedule_invite_base_fields: ScheduleInviteSelectKey[] = [
   'schedule.schedule_status',
   'schedule.confirmed_participants_amount',
   'schedule.participant_limit',
-];
+] satisfies ScheduleInviteSelectKey[];

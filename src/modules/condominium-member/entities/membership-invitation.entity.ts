@@ -59,7 +59,7 @@ export type MembershipInvitationSelectKey =
   | `${typeof membershipInvitationAlias}.${keyof MembershipInvitation}`
   | `${typeof condominiumAlias}.${keyof Condominium}`;
 
-export const membership_base_fields: MembershipInvitationSelectKey[] = [
+export const membership_base_fields = [
   'membership-invitation.id',
   'membership-invitation.created_at',
   'membership-invitation.updated_at',
@@ -69,4 +69,4 @@ export const membership_base_fields: MembershipInvitationSelectKey[] = [
   'condominium.manager_id',
   'condominium.max_tenants_amount',
   'condominium.total_member_count',
-];
+] satisfies MembershipInvitationSelectKey[];

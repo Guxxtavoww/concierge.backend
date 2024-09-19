@@ -47,9 +47,9 @@ export const professionAlias = 'profession';
 export type ProfessionSelectKey =
   `${typeof professionAlias}.${keyof Profession}`;
 
-export const base_profession_fields: ProfessionSelectKey[] = [
+export const base_profession_fields = [
   'profession.id',
   'profession.name',
   'profession.description',
   'profession.profession_category_id',
-];
+] satisfies ProfessionSelectKey[];

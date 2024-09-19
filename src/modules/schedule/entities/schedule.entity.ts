@@ -109,7 +109,7 @@ export type ScheduleSelectKey =
   | `${typeof scheduleAlias}.${keyof Schedule}`
   | `${typeof createdByAlias}.${keyof User}`;
 
-export const schedule_base_fields: ScheduleSelectKey[] = [
+export const schedule_base_fields = [
   'schedule.id',
   'schedule.schedule_description',
   'schedule.schedule_title',
@@ -125,4 +125,4 @@ export const schedule_base_fields: ScheduleSelectKey[] = [
   'created_by.id',
   'created_by.user_name',
   'created_by.created_at',
-];
+] satisfies ScheduleSelectKey[];

@@ -72,16 +72,16 @@ export const alias = 'condominium-member';
 export type CondominiumMemberSelectKey =
   `${typeof alias}.${keyof CondominiumMember}`;
 
-export const base_fields: CondominiumMemberSelectKey[] = [
+export const base_fields = [
   'condominium-member.id',
   'condominium-member.is_tenant',
   'condominium-member.user_id',
   'condominium-member.condominium_id',
   'condominium-member.updated_at',
   'condominium-member.created_at',
-];
+] satisfies CondominiumMemberSelectKey[];
 
-export const perfomatic_fields: CondominiumMemberSelectKey[] = [
+export const perfomatic_fields = [
   'condominium-member.user_id',
   'condominium-member.condominium_id',
-];
+] satisfies CondominiumMemberSelectKey[];

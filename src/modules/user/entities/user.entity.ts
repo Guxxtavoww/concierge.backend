@@ -99,7 +99,9 @@ export class User extends Base {
 
 export const alias = 'user';
 
-export const base_fields: `${typeof alias}.${keyof User}`[] = [
+export type UserSelectKey = `${typeof alias}.${keyof User}`;
+
+export const base_fields = [
   'user.id',
   'user.created_at',
   'user.updated_at',
@@ -107,4 +109,4 @@ export const base_fields: `${typeof alias}.${keyof User}`[] = [
   'user.user_email',
   'user.phone_number',
   'user.date_of_birth',
-];
+] satisfies UserSelectKey[];
