@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 
 import {
   applyOrderByFilters,
@@ -83,28 +87,47 @@ export class ProfessionService {
     return professionRepository.save(professionToCreate);
   }
 
+  private professionQueryBuilder() {
+    return condominiumMemberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.professions', 'profession')
+      .select([
+        'member.id',
+        'member.user_id',
+        'profession.id',
+        'profession.name',
+        'profession.profession_category_id',
+      ]);
+  }
+
   async assignProfessionToMember(
     member_id: string,
     profession_id: number,
     logged_in_user_id: string,
   ) {
-    const [member, profession] = await Promise.all([
-      this.condominiumMemberService.getMemberProfessions(member_id),
-      this.getProfessionById(profession_id),
-    ]);
+    const condominium_member = await this.professionQueryBuilder()
+      .where('member.id = :member_id', { member_id })
+      .andWhere('member.user_id = :logged_in_user_id', { logged_in_user_id })
+      .getOne();
 
-    if (member.user_id !== logged_in_user_id)
-      throw new ForbiddenException('Not allowed');
+    if (!condominium_member)
+      throw new NotFoundError('Member not found or access denied');
 
-    member.professions.push(profession);
-
-    try {
-      await condominiumMemberRepository.update(member.id, {
-        professions: member.professions,
-      });
-    } catch (error) {
-      throw error;
+    for (const existingProfession of condominium_member.professions) {
+      if (existingProfession.id === profession_id) {
+        throw new BadRequestException('Profession already assigned to member');
+      }
     }
+
+    const profession = await this.getProfessionById(profession_id);
+
+    condominium_member.professions.push(profession);
+
+    await condominiumMemberRepository.update(condominium_member.id, {
+      professions: condominium_member.professions,
+    });
+
+    return condominium_member.professions;
   }
 
   async updateProfession(id: number, payload: UpdateProfessionPayload) {
