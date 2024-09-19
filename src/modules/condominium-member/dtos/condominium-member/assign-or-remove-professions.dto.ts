@@ -4,7 +4,9 @@ import { z } from 'nestjs-zod/z';
 
 import { integerNumberSchema } from 'src/shared/schemas.shared';
 
-export const assignOrRemoveProfessionsSchema = z.array(integerNumberSchema);
+export const assignOrRemoveProfessionsSchema = z
+  .array(integerNumberSchema)
+  .min(1);
 
 export type AssignOrRemoveProfessionsType = z.infer<
   typeof assignOrRemoveProfessionsSchema

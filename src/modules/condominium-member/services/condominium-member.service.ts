@@ -150,15 +150,6 @@ export class CondominiumMemberService {
       ]);
   }
 
-  private updateMemberProfessions(
-    condominium_member_id: string,
-    professions: Profession[],
-  ) {
-    return condominiumMemberRepository.update(condominium_member_id, {
-      professions,
-    });
-  }
-
   async getCondominiumMemberProfessionsByIdAndLoggedInUserId(
     member_id: string,
     logged_in_user_id: string,
@@ -185,16 +176,26 @@ export class CondominiumMemberService {
         logged_in_user_id,
       );
 
-    const filteredProfessions = condominium_member.professions.filter(
-      (existingProfession) => !profession_ids.includes(existingProfession.id),
+    const professionIdsSet = new Set(profession_ids);
+    const memberProfessionIdsSet = new Set(
+      condominium_member.professions.map((profession) => profession.id),
     );
 
-    condominium_member.professions = filteredProfessions;
-
-    await this.updateMemberProfessions(
-      condominium_member.id,
-      condominium_member.professions,
+    const invalidProfessionIds = profession_ids.filter(
+      (id) => !memberProfessionIdsSet.has(id),
     );
+
+    if (invalidProfessionIds.length > 0) {
+      throw new BadRequestException(
+        `Invalid profession IDs: ${invalidProfessionIds.join(', ')}`,
+      );
+    }
+
+    condominium_member.professions = condominium_member.professions.filter(
+      (existingProfession) => !professionIdsSet.has(existingProfession.id),
+    );
+
+    await condominiumMemberRepository.save(condominium_member);
 
     return condominium_member.professions;
   }
@@ -219,15 +220,11 @@ export class CondominiumMemberService {
     const professions =
       await this.professionService.getProfessionsById(professions_id);
 
-    condominium_member.professions = [
-      ...condominium_member.professions,
-      ...professions,
-    ];
+    // Atualizar a lista de profissões
+    condominium_member.professions.push(...professions);
 
-    await this.updateMemberProfessions(
-      condominium_member.id,
-      condominium_member.professions,
-    );
+    // Salvar a entidade atualizada com a nova lista de profissões
+    await condominiumMemberRepository.save(condominium_member);
 
     return condominium_member.professions;
   }
