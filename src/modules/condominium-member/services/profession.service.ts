@@ -12,7 +12,6 @@ import {
   professionAlias,
   base_profession_fields,
 } from '../entities/profession.entity';
-import { CondominiumMemberService } from './condominium-member.service';
 import { ProfessionCategoryService } from './profession-category.service';
 import { professionRepository } from '../repositories/profession.repository';
 import type { ListProfessionsPayload } from '../dtos/profession/list-professions.dto';
@@ -22,7 +21,6 @@ import type { UpdateProfessionPayload } from '../dtos/profession/update-professi
 @Injectable()
 export class ProfessionService {
   constructor(
-    private readonly condominiumMemberService: CondominiumMemberService,
     private readonly professionCategoryService: ProfessionCategoryService,
   ) {}
 
