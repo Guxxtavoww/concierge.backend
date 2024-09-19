@@ -57,7 +57,6 @@ export default class ProfessionSeeder implements Seeder {
       select: ['category_name', 'id'],
     });
 
-    // Criar mapa de categorias para fácil acesso
     const categoryMap = categories.reduce(
       (acc, category) => {
         acc[category.category_name] = category;
@@ -66,15 +65,15 @@ export default class ProfessionSeeder implements Seeder {
       {} as Record<string, ProfessionCategory>,
     );
 
-    await Promise.all(
-      professionsToCreate.map((profession) => {
-        const profession_category_id = categoryMap[profession.category]!.id;
+    const professionsToInsert = professionsToCreate.map((profession) => {
+      const profession_category_id = categoryMap[profession.category]?.id;
 
-        return professionRepository.save({
-          name: profession.name,
-          profession_category_id,
-        });
-      }),
-    );
+      return {
+        name: profession.name,
+        profession_category_id,
+      };
+    });
+
+    await professionRepository.save(professionsToInsert);
   }
 }

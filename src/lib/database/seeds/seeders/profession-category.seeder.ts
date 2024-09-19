@@ -34,18 +34,14 @@ export default class ProfessionCategorySeeder implements Seeder {
     dataSource: DataSource,
     _factoryManager: SeederFactoryManager,
   ): Promise<any> {
-    const profeProfessionCategoryRepository =
+    const professionCategoryRepository =
       dataSource.getRepository(ProfessionCategory);
 
     const newProfessionsCategories = professionsCategoriesToCreate.map(
       (profession) =>
-        profeProfessionCategoryRepository.create({ category_name: profession }),
+        professionCategoryRepository.create({ category_name: profession }),
     );
 
-    await Promise.all(
-      newProfessionsCategories.map((cat) =>
-        profeProfessionCategoryRepository.save(cat),
-      ),
-    );
+    await professionCategoryRepository.save(newProfessionsCategories);
   }
 }
