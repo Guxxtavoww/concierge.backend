@@ -101,6 +101,31 @@ export class MembershipInvitationService {
     return invitation;
   }
 
+  private async validateMembership(
+    condominium: Condominium,
+    user_id: string,
+    logged_in_user_id: string,
+    skipValidations?: boolean,
+  ) {
+    if (!skipValidations) {
+      // Check if the logged-in user is the manager
+      if (condominium.manager_id !== logged_in_user_id) {
+        throw new ForbiddenException('Only the manager can send invitations');
+      }
+
+      // Check if the user is already a member
+      const member =
+        await this.condominiumMemberService.getMembershipByUserIdAndCondominiumId(
+          user_id,
+          condominium.id,
+        );
+
+      if (member) {
+        throw new ForbiddenException('Already a member of this condominium');
+      }
+    }
+  }
+
   async sendMembershipInvitation(
     condominium_id: string,
     { user_id, is_tenant }: SendMembershipInvitationType,
@@ -112,22 +137,12 @@ export class MembershipInvitationService {
       condominium_arg ||
       (await this.condominiumService.getCondominiumById(condominium_id));
 
-    if (!skipValidations) {
-      if (condominium.manager_id !== logged_in_user_id)
-        throw new ForbiddenException('Only the manager can send invitations');
-
-      const member =
-        await this.condominiumMemberService.getMembershipByUserIdAndCondominiumId(
-          user_id,
-          condominium.id,
-        );
-
-      if (member) {
-        throw new ForbiddenException(
-          'Already are a member of this condominium',
-        );
-      }
-    }
+    await this.validateMembership(
+      condominium,
+      user_id,
+      logged_in_user_id,
+      skipValidations,
+    );
 
     const inviteToCreate = MembershipInvitation.create({
       user_id,
@@ -183,19 +198,15 @@ export class MembershipInvitationService {
     }
 
     try {
-      const results = await Promise.all(
-        payload.map((invite) =>
-          this.sendMembershipInvitation(
-            condominium.id,
-            invite,
-            logged_in_user_id,
-            condominium,
-            true,
-          ),
-        ),
+      const invitesToCreate = payload.map((invite) =>
+        MembershipInvitation.create({
+          user_id: invite.user_id,
+          condominium_id: condominium.id,
+          is_tenant: invite.is_tenant,
+        }),
       );
 
-      return results;
+      return membershipInvitationRepository.save(invitesToCreate);
     } catch (err) {
       throw new InternalServerErrorException();
     }
