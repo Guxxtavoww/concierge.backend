@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule as NestjsScheduleModule } from '@nestjs/schedule';
 
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
@@ -10,7 +9,6 @@ import { CondominiumMemberModule } from './condominium-member/condominium-member
 
 @Module({
   imports: [
-    NestjsScheduleModule.forRoot(),
     UserModule,
     AuthModule,
     CondominiumModule,

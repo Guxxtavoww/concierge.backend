@@ -1,7 +1,8 @@
-import { Module, type OnModuleInit } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { ScheduleModule } from '@nestjs/schedule';
+import { Module, type OnModuleInit } from '@nestjs/common';
 
 import { LogModule } from './lib/log/log.module';
 import { ConciergeModule } from './modules/concierge.module';
@@ -10,6 +11,7 @@ import { PaginationModule } from './lib/pagination/pagination.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     ConciergeModule,
     PaginationModule,
