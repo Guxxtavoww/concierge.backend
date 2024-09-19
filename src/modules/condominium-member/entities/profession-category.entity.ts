@@ -43,5 +43,4 @@ export type ProfessionCategorySelectKey =
 export const base_profession_category_fields = [
   'profession-category.id',
   'profession-category.category_name',
-  'profession-category.category_description',
 ] satisfies ProfessionCategorySelectKey[];

@@ -50,6 +50,5 @@ export type ProfessionSelectKey =
 export const base_profession_fields = [
   'profession.id',
   'profession.name',
-  'profession.description',
   'profession.profession_category_id',
 ] satisfies ProfessionSelectKey[];
