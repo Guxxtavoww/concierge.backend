@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 
 import {
-  applyOrderByFilters,
   applyQueryFilters,
+  applyOrderByFilters,
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
@@ -21,7 +21,6 @@ import {
   perfomatic_fields,
 } from '../entities/condominium-member.entity';
 import { ProfessionService } from './profession.service';
-import { Profession } from '../entities/profession.entity';
 import type { UpdateIsTenantType } from '../dtos/condominium-member/update-is-tenant.dto';
 import { condominiumMemberRepository } from '../repositories/condominium-member.repository';
 import { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
@@ -220,10 +219,8 @@ export class CondominiumMemberService {
     const professions =
       await this.professionService.getProfessionsById(professions_id);
 
-    // Atualizar a lista de profissões
     condominium_member.professions.push(...professions);
 
-    // Salvar a entidade atualizada com a nova lista de profissões
     await condominiumMemberRepository.save(condominium_member);
 
     return condominium_member.professions;

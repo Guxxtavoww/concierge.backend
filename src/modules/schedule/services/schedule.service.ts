@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
+import { SchedulerRegistry, CronExpression } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 
 import {
