@@ -130,17 +130,6 @@ export class CondominiumService {
     return condominium;
   }
 
-  async getCondominiumCurrentMemberCount(
-    id: string,
-  ): Promise<Pick<Condominium, 'max_tenants_amount' | 'total_member_count'>> {
-    const condominium = await condominiumRepository.findOneOrFail({
-      where: { id },
-      select: ['max_tenants_amount', 'total_member_count'],
-    });
-
-    return condominium;
-  }
-
   async createCondominium(
     payload: CreateCondominiumType,
     manager_id: string,
