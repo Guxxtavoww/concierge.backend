@@ -190,14 +190,16 @@ export class ScheduleInviteService {
     if (membership.user_id !== logged_in_user_id)
       throw new ForbiddenException('Cant accept this invitation.');
 
+    const isAcceptAction = action === 'accept';
+
     const res = await this.updateScheduleInviteStatus(
       invitation.id,
-      action === 'accept'
+      isAcceptAction
         ? ScheduleInviteStatus.ACCEPTED
         : ScheduleInviteStatus.DECLINED,
     );
 
-    if (action === 'accept') {
+    if (isAcceptAction) {
       await Promise.all([
         this.scheduleService.updateScheduleConfirmedParticipantsAmount(
           invitation.schedule,
