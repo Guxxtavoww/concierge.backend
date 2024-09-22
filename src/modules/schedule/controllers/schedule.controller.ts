@@ -19,6 +19,7 @@ import { schedule_status } from '../enums/schedule-status.enum';
 import { CreateScheduleDTO } from '../dtos/create-schedule.dto';
 import { UpdateScheduleDTO } from '../dtos/update-schedule.dto';
 import { PaginateSchedulesDTO } from '../dtos/paginate-schedules.dto';
+import { PaginateScheduleParticipantsDTO } from '../dtos/paginate-schedule-participants.dto';
 
 @ApiTags('schedule')
 @Controller('schedule')
@@ -39,6 +40,12 @@ export class ScheduleController {
   @Get('paginate')
   paginate(@Query() querys: PaginateSchedulesDTO) {
     return this.scheduleService.paginateSchedules(querys);
+  }
+
+  @ApiPaginationQuery()
+  @Get('paginate-participants')
+  paginateParticipants(@Query() querys: PaginateScheduleParticipantsDTO) {
+    return this.scheduleService.paginateScheduleParticipants(querys);
   }
 
   @Get(':id')

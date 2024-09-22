@@ -66,10 +66,13 @@ export class CondominiumMember extends Base {
   }
 }
 
-export const alias = 'condominium-member';
+export const userAlias = 'user';
+export const eventsAlias = 'events';
+export const condominiumMemberAlias = 'condominium-member';
 
 export type CondominiumMemberSelectKey =
-  `${typeof alias}.${keyof CondominiumMember}`;
+  | `${typeof condominiumMemberAlias}.${keyof CondominiumMember}`
+  | `${typeof userAlias}.${keyof User}`;
 
 export const base_fields = [
   'condominium-member.id',
@@ -84,3 +87,10 @@ export const perfomatic_fields = [
   'condominium-member.user_id',
   'condominium-member.condominium_id',
 ] satisfies CondominiumMemberSelectKey[];
+
+export const base_fields_with_events = [
+  'condominium-member.id',
+  'condominium-member.is_tenant',
+  'user.user_name',
+  'user.user_email',
+];

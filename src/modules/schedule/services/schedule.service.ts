@@ -23,6 +23,8 @@ import { scheduleRepository } from '../repositories/schedule.repository';
 import type { CreateSchedulePayload } from '../dtos/create-schedule.dto';
 import type { UpdateSchedulePayload } from '../dtos/update-schedule.dto';
 import type { PaginateSchedulesType } from '../dtos/paginate-schedules.dto';
+import type { PaginateScheduleParticipantsType } from '../dtos/paginate-schedule-participants.dto';
+import { condominiumMemberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 @Injectable()
 export class ScheduleService {
@@ -202,6 +204,24 @@ export class ScheduleService {
     return this.paginationService.paginateWithQueryBuilder(queryBuilder, {
       page,
       limit,
+    });
+  }
+
+  async paginateScheduleParticipants({
+    schedule_id,
+    limit,
+    page,
+    ...orderBy
+  }: PaginateScheduleParticipantsType) {
+    const queryBuilder = this.condominiumMemberService
+      .createMemberQueryBuilderWithEvents()
+      .where(`schedule.id = :schedule_id`, { schedule_id });
+
+    applyOrderByFilters(condominiumMemberAlias, queryBuilder, orderBy);
+
+    return this.paginationService.paginateWithQueryBuilder(queryBuilder, {
+      limit,
+      page,
     });
   }
 

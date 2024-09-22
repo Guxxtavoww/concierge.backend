@@ -57,6 +57,7 @@ export class Schedules1726092896242 implements MigrationInterface {
             name: 'participant_limit',
             type: 'int',
             isNullable: true,
+            default: null,
           },
           {
             name: 'confirmed_participants_amount',

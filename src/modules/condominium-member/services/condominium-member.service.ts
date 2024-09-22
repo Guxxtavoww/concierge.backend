@@ -15,10 +15,12 @@ import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-er
 import { CondominiumService } from 'src/modules/condominium/services/condominium.service';
 
 import {
-  alias,
+  condominiumMemberAlias,
   base_fields,
   CondominiumMember,
   perfomatic_fields,
+  base_fields_with_events,
+  userAlias,
 } from '../entities/condominium-member.entity';
 import { ProfessionService } from './profession.service';
 import type { UpdateIsTenantType } from '../dtos/condominium-member/update-is-tenant.dto';
@@ -38,13 +40,21 @@ export class CondominiumMemberService {
 
   private createCondominiumMemberQueryBuilder() {
     return condominiumMemberRepository
-      .createQueryBuilder(alias)
+      .createQueryBuilder(condominiumMemberAlias)
       .select(base_fields);
+  }
+
+  public createMemberQueryBuilderWithEvents() {
+    return condominiumMemberRepository
+      .createQueryBuilder(condominiumMemberAlias)
+      .leftJoinAndSelect(`${condominiumMemberAlias}.${userAlias}`, userAlias)
+      .innerJoin(`${condominiumMemberAlias}.events`, 'schedule')
+      .select(base_fields_with_events);
   }
 
   public createPerfomaticCondominiumMemberQueryBuilder() {
     return condominiumMemberRepository
-      .createQueryBuilder(alias)
+      .createQueryBuilder(condominiumMemberAlias)
       .select(perfomatic_fields);
   }
 
@@ -57,13 +67,13 @@ export class CondominiumMemberService {
   }: PaginateCondominiumsMembersPayload) {
     const queryBuilder = this.createCondominiumMemberQueryBuilder();
 
-    applyQueryFilters(alias, queryBuilder, filters, {
+    applyQueryFilters(condominiumMemberAlias, queryBuilder, filters, {
       condominium_id: '=',
       is_tenant: '=',
       user_id: '=',
     });
 
-    applyOrderByFilters(alias, queryBuilder, {
+    applyOrderByFilters(condominiumMemberAlias, queryBuilder, {
       order_by_created_at,
       order_by_updated_at,
     });
@@ -76,7 +86,7 @@ export class CondominiumMemberService {
 
   async getCondominiumMemberById(id: string) {
     const membership = await this.createCondominiumMemberQueryBuilder()
-      .where(`${alias}.id = :id`, { id })
+      .where(`${condominiumMemberAlias}.id = :id`, { id })
       .getOne();
 
     if (!membership) throw new NotFoundError('Member not found!');
@@ -86,7 +96,7 @@ export class CondominiumMemberService {
 
   async getMembershipByUserId(user_id: string) {
     const membership = await this.createCondominiumMemberQueryBuilder()
-      .where(`${alias}.user_id = :user_id`, { user_id })
+      .where(`${condominiumMemberAlias}.user_id = :user_id`, { user_id })
       .getOne();
 
     if (!membership) throw new NotFoundError('Member not found!');
@@ -99,8 +109,10 @@ export class CondominiumMemberService {
     user_ids: string[],
   ): Promise<Pick<CondominiumMember, 'condominium_id' | 'user_id'>[]> {
     const results = await this.createPerfomaticCondominiumMemberQueryBuilder()
-      .where(`${alias}.condominium_id = :condominium_id`, { condominium_id })
-      .andWhere(`${alias}.user_id IN (:...user_ids)`, {
+      .where(`${condominiumMemberAlias}.condominium_id = :condominium_id`, {
+        condominium_id,
+      })
+      .andWhere(`${condominiumMemberAlias}.user_id IN (:...user_ids)`, {
         user_ids,
       })
       .take(user_ids.length)
@@ -114,8 +126,8 @@ export class CondominiumMemberService {
     condominium_id: string,
   ): Promise<NullableValue<CondominiumMember>> {
     const membership = await this.createCondominiumMemberQueryBuilder()
-      .where(`${alias}.user_id = :user_id`, { user_id })
-      .andWhere(`${alias}.condominium_id = :condominium_id`, {
+      .where(`${condominiumMemberAlias}.user_id = :user_id`, { user_id })
+      .andWhere(`${condominiumMemberAlias}.condominium_id = :condominium_id`, {
         condominium_id,
       })
       .getOne();

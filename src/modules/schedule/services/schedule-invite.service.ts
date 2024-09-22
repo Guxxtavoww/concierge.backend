@@ -93,10 +93,9 @@ export class ScheduleInviteService {
     const queryBuilder = this.createScheduleInviteQueryBuilder();
 
     applyQueryFilters(
-      scheduleAlias,
+      scheduleInviteAlias,
       queryBuilder,
       {
-        schedule_id,
         condominium_member_id,
         condominium_id,
         schedule_invite_status: ScheduleInviteStatus.PENDING,
@@ -104,9 +103,14 @@ export class ScheduleInviteService {
       {
         condominium_id: '=',
         condominium_member_id: '=',
-        schedule_id: '=',
         schedule_invite_status: '=',
       },
+    );
+    applyQueryFilters(
+      scheduleAlias,
+      queryBuilder,
+      { id: schedule_id },
+      { id: '=' },
     );
 
     return queryBuilder.getOne();

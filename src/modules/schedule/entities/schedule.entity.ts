@@ -49,7 +49,7 @@ export class Schedule extends Base {
   @Column('boolean')
   is_private: boolean;
 
-  @Column('int', { nullable: true })
+  @Column('int', { nullable: true, default: null })
   participant_limit: NullableValue<number>;
 
   @Column('int', { default: 0 })

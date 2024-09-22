@@ -11,7 +11,7 @@ import {
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
-import { alias as memberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
+import { condominiumMemberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
 import {
@@ -53,10 +53,10 @@ export class CondominiumService {
 
     const memberships = await this.condominiumMemberService
       .createPerfomaticCondominiumMemberQueryBuilder()
-      .where(`${memberAlias}.condominium_id IN (:...condominiumsIds)`, {
+      .where(`${condominiumMemberAlias}.condominium_id IN (:...condominiumsIds)`, {
         condominiumsIds,
       })
-      .andWhere(`${memberAlias}.user_id = :logged_in_user_id`, {
+      .andWhere(`${condominiumMemberAlias}.user_id = :logged_in_user_id`, {
         logged_in_user_id,
       })
       .take(condominiumsIds.length)
