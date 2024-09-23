@@ -1,6 +1,12 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { SchedulerRegistry, CronExpression } from '@nestjs/schedule';
+import {
+  Injectable,
+  type OnModuleInit,
+  ForbiddenException,
+} from '@nestjs/common';
+import { Queue } from 'bull';
 import { CronJob } from 'cron';
+import { InjectQueue } from '@nestjs/bull';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 import {
   applyQueryFilters,
@@ -10,6 +16,8 @@ import { LogService } from 'src/lib/log/log.service';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
 import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
+import { ScheduleCronJobService } from 'src/modules/schedule-cron-job/services/schedule-cron-job.service';
+import { condominiumMemberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
 import {
@@ -19,21 +27,41 @@ import {
   schedule_base_fields,
 } from '../entities/schedule.entity';
 import { ScheduleStatus } from '../enums/schedule-status.enum';
+import { SCHEDULE_PROCESS_KEY } from '../processors/schedule.processor';
 import { scheduleRepository } from '../repositories/schedule.repository';
 import type { CreateSchedulePayload } from '../dtos/create-schedule.dto';
 import type { UpdateSchedulePayload } from '../dtos/update-schedule.dto';
 import type { PaginateSchedulesType } from '../dtos/paginate-schedules.dto';
 import type { PaginateScheduleParticipantsType } from '../dtos/paginate-schedule-participants.dto';
-import { condominiumMemberAlias } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 @Injectable()
-export class ScheduleService {
+export class ScheduleService implements OnModuleInit {
   constructor(
     private readonly logService: LogService,
     private readonly paginationService: PaginationService,
     private readonly condominiumMemberService: CondominiumMemberService,
+    private readonly scheduleCronJobService: ScheduleCronJobService,
     private readonly schedulerRegistry: SchedulerRegistry,
+    @InjectQueue('schedule-queue') private scheduleQueue: Queue,
   ) {}
+
+  async onModuleInit() {
+    const scheduleCronJobs =
+      await this.scheduleCronJobService.loadAllCronJobs();
+
+    if (!scheduleCronJobs.length) return;
+
+    await Promise.all(
+      scheduleCronJobs.map(
+        ({ cron_expression_end, cron_expression_start, schedule }) =>
+          this.scheduleQueue.add(SCHEDULE_PROCESS_KEY, {
+            schedule,
+            cron_expression_start,
+            cron_expression_end,
+          }),
+      ),
+    );
+  }
 
   private createScheduleQueryBuilder() {
     const queryBuilder = scheduleRepository
@@ -63,61 +91,70 @@ export class ScheduleService {
     return `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
   }
 
-  private setupCronJobs(schedule: Schedule) {
-    const startCronJob = new CronJob(
-      this.generateCronExpression(schedule.scheduled_datetime_start),
-      async () => {
-        try {
-          await scheduleRepository.update(schedule.id, {
-            schedule_status: ScheduleStatus.ONGOING,
-          });
+  async setupCronJobs(
+    schedule: Schedule,
+    cron_expression_start?: Maybe<string>,
+    cron_expression_end?: Maybe<string>,
+    skipSave?: boolean,
+  ) {
+    const scheduleId = schedule.id;
 
-          this.logService.logger?.log(
-            `Schedule ${schedule.id} is now ongoing.`,
-          );
-        } catch (error) {
-          this.logService.logger?.error(
-            `Failed to update schedule to Ongoing: ${error.message}`,
-          );
-        }
-      },
-    );
+    const cronExpressionStart =
+      cron_expression_start ||
+      this.generateCronExpression(schedule.scheduled_datetime_start);
+
+    const cronExpressionEnd =
+      cron_expression_end ||
+      this.generateCronExpression(schedule.scheduled_datetime_end);
+
+    const startCronJob = new CronJob(cronExpressionStart, async () => {
+      try {
+        await scheduleRepository.update(scheduleId, {
+          schedule_status: ScheduleStatus.ONGOING,
+        });
+
+        this.logService.logger?.log(`Schedule ${scheduleId} is now ongoing.`);
+      } catch (error) {
+        this.logService.logger?.error(
+          `Failed to update schedule to Ongoing: ${error.message}`,
+        );
+      }
+    });
 
     this.schedulerRegistry.addCronJob(
-      `schedule-start-${schedule.id}`,
+      `schedule-start-${scheduleId}`,
       startCronJob,
     );
     startCronJob.start();
 
-    const endCronJob = new CronJob(
-      this.generateCronExpression(schedule.scheduled_datetime_end),
-      async () => {
-        try {
-          await scheduleRepository.update(schedule.id, {
-            schedule_status: ScheduleStatus.FINISHED,
-          });
+    const endCronJob = new CronJob(cronExpressionEnd, async () => {
+      try {
+        await scheduleRepository.update(scheduleId, {
+          schedule_status: ScheduleStatus.FINISHED,
+        });
 
-          this.logService.logger?.log(
-            `Schedule ${schedule.id} is now finished.`,
-          );
+        this.logService.logger?.log(`Schedule ${scheduleId} is now finished.`);
+        this.removeCronJobs(scheduleId);
+      } catch (error) {
+        this.logService.logger?.error(
+          `Failed to update schedule to Finished: ${error.message}`,
+        );
+      }
+    });
 
-          this.removeCronJobs(schedule.id);
-        } catch (error) {
-          this.logService.logger?.error(
-            `Failed to update schedule to Finished: ${error.message}`,
-          );
-        }
-      },
-    );
-
-    this.schedulerRegistry.addCronJob(
-      `schedule-end-${schedule.id}`,
-      endCronJob,
-    );
+    this.schedulerRegistry.addCronJob(`schedule-end-${scheduleId}`, endCronJob);
     endCronJob.start();
+
+    if (!skipSave) {
+      await this.scheduleCronJobService.saveCronJob(
+        scheduleId,
+        cronExpressionStart,
+        cronExpressionEnd,
+      );
+    }
   }
 
-  private removeCronJobs(scheduleId: string) {
+  private async removeCronJobs(scheduleId: string) {
     const startJobKey = `schedule-start-${scheduleId}`;
 
     if (this.schedulerRegistry.doesExist('cron', startJobKey)) {
@@ -131,6 +168,8 @@ export class ScheduleService {
       this.schedulerRegistry.deleteCronJob(endJobKey);
       this.logService.logger?.log(`Removed cron job: ${endJobKey}`);
     }
+
+    await this.scheduleCronJobService.deleteCronJobByScheduleId(scheduleId);
   }
 
   /**

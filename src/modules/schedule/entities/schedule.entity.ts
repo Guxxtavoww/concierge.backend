@@ -12,6 +12,7 @@ import {
 import { User } from 'src/modules/user/entities/user.entity';
 import { Base } from 'src/lib/database/entities/base.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
+import { ScheduleCronJob } from 'src/modules/schedule-cron-job/entities/schedule-cron-job.entity';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 import { ScheduleInvite } from './schedule-invite.entity';
@@ -84,6 +85,9 @@ export class Schedule extends Base {
     },
   })
   participants: CondominiumMember[];
+
+  @OneToMany(() => ScheduleCronJob, (cron) => cron.schedule)
+  cron_jobs: ScheduleCronJob[];
 
   static create(payload: CreateSchedule) {
     const item = new Schedule();

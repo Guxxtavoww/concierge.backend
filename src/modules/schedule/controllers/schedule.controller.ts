@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
+import { DataBaseInterceptorDecorator } from 'src/shared/decorators/database-interceptor.decorator';
 
 import { schedule_types } from '../enums/schedule-type.enum';
 import { ScheduleService } from '../services/schedule.service';
@@ -53,6 +54,7 @@ export class ScheduleController {
     return this.scheduleService.getScheduleById(id);
   }
 
+  @DataBaseInterceptorDecorator()
   @Post('')
   create(
     @Body() body: CreateScheduleDTO,
@@ -61,6 +63,7 @@ export class ScheduleController {
     return this.scheduleService.createSchedule(body, decoded_token.id);
   }
 
+  @DataBaseInterceptorDecorator()
   @Put(':id')
   update(
     @UuidParam('id') id: string,
@@ -70,6 +73,7 @@ export class ScheduleController {
     return this.scheduleService.updateSchedule(id, body, decoded_token.id);
   }
 
+  @DataBaseInterceptorDecorator()
   @Delete(':id')
   delete(
     @UuidParam('id') id: string,
