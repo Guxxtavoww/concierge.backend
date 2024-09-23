@@ -1,10 +1,10 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 
-import { BaseWithIncrementalId } from 'src/lib/database/entities/base.entity';
 import {
   Schedule,
   scheduleAlias,
 } from 'src/modules/schedule/entities/schedule.entity';
+import { BaseWithIncrementalId } from 'src/lib/database/entities/base.entity';
 
 @Entity('schedule-cron-jobs')
 export class ScheduleCronJob extends BaseWithIncrementalId {
