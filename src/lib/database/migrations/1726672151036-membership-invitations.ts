@@ -8,7 +8,7 @@ import {
 
 import {
   MembershipInvitationStatus,
-  membership_invitaion_statuses,
+  membership_invitation_statuses,
 } from 'src/modules/condominium-member/enums/membership-invitation-status.enum';
 
 import { baseColumns } from '../entities/base-columns';
@@ -38,7 +38,7 @@ export class MembershipInvitations1726672151036 implements MigrationInterface {
           {
             name: 'membership_invitation_status',
             type: 'enum',
-            enum: membership_invitaion_statuses,
+            enum: membership_invitation_statuses,
             default: `'${MembershipInvitationStatus.SENT}'`,
           },
         ],

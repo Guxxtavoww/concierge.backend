@@ -4,6 +4,6 @@ export enum MembershipInvitationStatus {
   DECLINED = 'recusada',
 }
 
-export const membership_invitaion_statuses = Object.values(
+export const membership_invitation_statuses = Object.values(
   MembershipInvitationStatus,
 );
