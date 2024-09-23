@@ -17,9 +17,9 @@ const providers = [ScheduleService, ScheduleInviteService];
 
 @Module({
   imports: [
+    ScheduleCronJobModule,
     CondominiumMemberModule,
     CondominiumModule,
-    ScheduleCronJobModule,
     BullModule.registerQueue({
       name: SCHEDULE_PROCESSOR,
     }),

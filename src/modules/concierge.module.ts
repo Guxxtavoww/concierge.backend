@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { CondominiumModule } from './condominium/condominium.module';
+import { ScheduleCronJobModule } from './schedule-cron-job/schedule-cron-job.module';
 import { CondominiumMemberModule } from './condominium-member/condominium-member.module';
 
 @Module({

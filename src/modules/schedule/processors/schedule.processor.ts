@@ -1,6 +1,7 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 
+import { LogService } from 'src/lib/log/log.service';
 import type { LoadAllResponse } from 'src/modules/schedule-cron-job/dtos/load-all.dto';
 
 import { Schedule } from '../entities/schedule.entity';
@@ -11,7 +12,10 @@ export const SCHEDULE_PROCESS_KEY = 'setup-cron-job';
 
 @Processor(SCHEDULE_PROCESSOR)
 export class ScheduleProcessor {
-  constructor(private readonly scheduleService: ScheduleService) {}
+  constructor(
+    private readonly logService: LogService,
+    private readonly scheduleService: ScheduleService,
+  ) {}
 
   @Process(SCHEDULE_PROCESS_KEY)
   async handleSetupCronJob(job: Job<LoadAllResponse>) {

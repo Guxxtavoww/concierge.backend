@@ -1,7 +1,7 @@
 import {
   Injectable,
-  type OnModuleInit,
   ForbiddenException,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 import { Queue } from 'bull';
 import { CronJob } from 'cron';
@@ -35,7 +35,7 @@ import type { PaginateSchedulesType } from '../dtos/paginate-schedules.dto';
 import type { PaginateScheduleParticipantsType } from '../dtos/paginate-schedule-participants.dto';
 
 @Injectable()
-export class ScheduleService implements OnModuleInit {
+export class ScheduleService implements OnApplicationBootstrap {
   constructor(
     private readonly logService: LogService,
     private readonly paginationService: PaginationService,
@@ -45,7 +45,7 @@ export class ScheduleService implements OnModuleInit {
     @InjectQueue('schedule-queue') private scheduleQueue: Queue,
   ) {}
 
-  async onModuleInit() {
+  async onApplicationBootstrap() {
     const scheduleCronJobs =
       await this.scheduleCronJobService.loadAllCronJobs();
 
@@ -134,7 +134,7 @@ export class ScheduleService implements OnModuleInit {
         });
 
         this.logService.logger?.log(`Schedule ${scheduleId} is now finished.`);
-        this.removeCronJobs(scheduleId);
+        await this.removeCronJobs(scheduleId);
       } catch (error) {
         this.logService.logger?.error(
           `Failed to update schedule to Finished: ${error.message}`,
@@ -152,6 +152,23 @@ export class ScheduleService implements OnModuleInit {
         cronExpressionEnd,
       );
     }
+  }
+
+  listCronJobs(): CronJob[] {
+    const runningJobs: CronJob[] = [];
+    const allJobs = this.schedulerRegistry.getCronJobs();
+
+    // Iterate through all registered jobs
+    for (const jobKey in allJobs) {
+      const job = allJobs[jobKey];
+
+      // Check if the job is currently running
+      if (job.running) {
+        runningJobs.push(job);
+      }
+    }
+
+    return runningJobs;
   }
 
   private async removeCronJobs(scheduleId: string) {
@@ -323,7 +340,7 @@ export class ScheduleService implements OnModuleInit {
 
     const savedSchedule = await scheduleRepository.save(scheduleToCreate);
 
-    this.setupCronJobs(savedSchedule);
+    await this.setupCronJobs(savedSchedule);
 
     return savedSchedule;
   }
@@ -377,11 +394,11 @@ export class ScheduleService implements OnModuleInit {
     );
 
     if (payload.scheduled_datetime_start || payload.scheduled_datetime_end) {
-      this.removeCronJobs(scheduleToUpdate.id);
+      await this.removeCronJobs(scheduleToUpdate.id);
 
       const mergedSchedule: Schedule = { ...scheduleToUpdate, ...payload };
 
-      this.setupCronJobs(mergedSchedule);
+      await this.setupCronJobs(mergedSchedule);
     }
 
     return updatedSchedule;
@@ -416,7 +433,7 @@ export class ScheduleService implements OnModuleInit {
     const scheduleToDelete = await this.getScheduleById(id);
 
     this.checkPermission(logged_in_user_id, scheduleToDelete);
-    this.removeCronJobs(scheduleToDelete.id);
+    await this.removeCronJobs(scheduleToDelete.id);
 
     return scheduleRepository.remove(scheduleToDelete);
   }

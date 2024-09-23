@@ -1,24 +1,32 @@
 import { Injectable } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
+import { scheduleAlias } from 'src/modules/schedule/entities/schedule.entity';
+
+import {
+  ScheduleCronJob,
+  base_fields,
+  scheduleCronJobAlias,
+} from '../entities/schedule-cron-job.entity';
 import type { LoadAllResponse } from '../dtos/load-all.dto';
-import { ScheduleCronJob } from '../entities/schedule-cron-job.entity';
 import { scheduleCronJobRepository } from '../repositories/schedule-cron-job.repository';
 
 @Injectable()
 export class ScheduleCronJobService {
+  constructor(private readonly schedulerRegistry: SchedulerRegistry) {}
+
+  private createScheduleCronJobQueryBuilder() {
+    return scheduleCronJobRepository
+      .createQueryBuilder(scheduleCronJobAlias)
+      .leftJoinAndSelect(
+        `${scheduleCronJobAlias}.${scheduleAlias}`,
+        scheduleAlias,
+      )
+      .select(base_fields);
+  }
+
   async loadAllCronJobs(): Promise<LoadAllResponse[]> {
-    return scheduleCronJobRepository.find({
-      select: {
-        schedule: {
-          id: true,
-          scheduled_datetime_end: true,
-          scheduled_datetime_start: true,
-        },
-        cron_expression_end: true,
-        cron_expression_start: true,
-      },
-      relations: ['schedule'],
-    });
+    return this.createScheduleCronJobQueryBuilder().getMany();
   }
 
   async saveCronJob(

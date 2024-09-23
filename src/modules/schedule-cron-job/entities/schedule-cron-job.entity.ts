@@ -1,7 +1,10 @@
-import { Column, Entity, Index, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 
 import { BaseWithIncrementalId } from 'src/lib/database/entities/base.entity';
-import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
+import {
+  Schedule,
+  scheduleAlias,
+} from 'src/modules/schedule/entities/schedule.entity';
 
 @Entity('schedule-cron-jobs')
 export class ScheduleCronJob extends BaseWithIncrementalId {
@@ -17,7 +20,20 @@ export class ScheduleCronJob extends BaseWithIncrementalId {
   @Column('uuid', { unique: true })
   schedule_id: string;
 
-  @OneToMany(() => Schedule, (schedule) => schedule.cron_jobs)
+  @ManyToOne(() => Schedule, (schedule) => schedule.cron_jobs)
   @JoinColumn({ name: 'schedule_id' })
   schedule: Schedule;
 }
+
+export const scheduleCronJobAlias = 'cron-job';
+export type ScheduleCronJobSelectKey =
+  | `${typeof scheduleCronJobAlias}.${keyof ScheduleCronJob}`
+  | `${typeof scheduleAlias}.${keyof Schedule}`;
+
+export const base_fields = [
+  'cron-job.cron_expression_end',
+  'cron-job.cron_expression_start',
+  'schedule.id',
+  'schedule.scheduled_datetime_start',
+  'schedule.scheduled_datetime_end',
+] satisfies ScheduleCronJobSelectKey[];
