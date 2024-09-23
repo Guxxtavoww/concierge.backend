@@ -23,11 +23,16 @@ export class ScheduleProcessor {
 
     const { schedule, cron_expression_start, cron_expression_end } = job.data;
 
-    await this.scheduleService.setupCronJobs(
-      schedule as Schedule,
-      cron_expression_start,
-      cron_expression_end,
-      true,
-    );
+    try {
+      await this.scheduleService.setupCronJobs(
+        schedule as Schedule,
+        cron_expression_start,
+        cron_expression_end,
+        true,
+      );
+    } catch (error) {
+      this.logService.logger?.error('Failed to setup cron jobs:', error);
+      throw error;
+    }
   }
 }
