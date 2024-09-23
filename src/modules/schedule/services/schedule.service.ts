@@ -154,23 +154,6 @@ export class ScheduleService implements OnApplicationBootstrap {
     }
   }
 
-  listCronJobs(): CronJob[] {
-    const runningJobs: CronJob[] = [];
-    const allJobs = this.schedulerRegistry.getCronJobs();
-
-    // Iterate through all registered jobs
-    for (const jobKey in allJobs) {
-      const job = allJobs[jobKey];
-
-      // Check if the job is currently running
-      if (job.running) {
-        runningJobs.push(job);
-      }
-    }
-
-    return runningJobs;
-  }
-
   private async removeCronJobs(scheduleId: string) {
     const startJobKey = `schedule-start-${scheduleId}`;
 

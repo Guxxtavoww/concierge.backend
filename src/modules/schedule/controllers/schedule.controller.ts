@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { Public } from 'src/shared/decorators/auth.decorator';
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
@@ -31,12 +30,6 @@ export class ScheduleController {
   @Get('schedule-statuses')
   getScheduleStatuses() {
     return schedule_status;
-  }
-
-  @Public()
-  @Get('current-cron-jobs')
-  getJobs() {
-    return this.scheduleService.listCronJobs();
   }
 
   @Get('schedule-types')
