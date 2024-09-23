@@ -1,5 +1,7 @@
 import { ApiQuery, type ApiQueryOptions } from '@nestjs/swagger';
 
+import { IS_DEV_ENV } from 'src/config/env.config';
+
 import { OrderByEnum } from '../enums.shared';
 
 export type Params = ApiQueryOptions[];
@@ -9,6 +11,8 @@ export function ApiPaginationQuery(
   hideOrderBy = false,
 ): MethodDecorator {
   return (target, key, descriptor) => {
+    if (IS_DEV_ENV) return;
+
     ApiQuery({
       type: 'number',
       description:
