@@ -1,9 +1,9 @@
 import { z } from 'nestjs-zod/z';
 import { createZodDto } from 'nestjs-zod';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { uuidSchema } from 'src/shared/schemas.shared';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
-import { ApiProperty } from '@nestjs/swagger';
 
 export const paginateScheduleParticipantsSchema = createPaginationSchema({
   schedule_id: uuidSchema,
