@@ -11,7 +11,7 @@ export function ApiPaginationQuery(
   hideOrderBy = false,
 ): MethodDecorator {
   return (target, key, descriptor) => {
-    if (IS_DEV_ENV) return;
+    if (!IS_DEV_ENV) return;
 
     ApiQuery({
       type: 'number',
