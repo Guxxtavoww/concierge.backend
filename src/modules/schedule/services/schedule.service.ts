@@ -301,7 +301,7 @@ export class ScheduleService implements OnApplicationBootstrap {
     { condominium_id, ...rest }: CreateSchedulePayload,
     logged_in_user_id: string,
   ) {
-    const [validatedId, schedule] = await Promise.all([
+    const [validatedCondominiumId, schedule] = await Promise.all([
       this.verifyMembership(logged_in_user_id, condominium_id),
       this.getScheduleByDatetimes(condominium_id, {
         scheduled_datetime_end: rest.scheduled_datetime_end,
@@ -317,7 +317,7 @@ export class ScheduleService implements OnApplicationBootstrap {
 
     const scheduleToCreate = Schedule.create({
       created_by_id: logged_in_user_id,
-      condominium_id: validatedId,
+      condominium_id: validatedCondominiumId,
       ...rest,
     });
 
