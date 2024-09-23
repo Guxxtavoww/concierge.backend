@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { Public } from 'src/shared/decorators/auth.decorator';
@@ -15,17 +15,17 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(@Body() signInDto: LoginDTO): Promise<AccessDTO> {
     return this.authService.signIn(signInDto);
   }
 
   @Public()
-  @HttpCode(HttpStatus.OK)
   @DataBaseInterceptorDecorator()
   @Post('register')
-  async registerAndLogin(@Body() registerDTO: CreateUserDTO): Promise<AccessDTO> {
+  async registerAndLogin(
+    @Body() registerDTO: CreateUserDTO,
+  ): Promise<AccessDTO> {
     return this.authService.registerAndLogin(registerDTO);
   }
 }
