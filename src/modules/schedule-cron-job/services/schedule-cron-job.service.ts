@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
 
 import { scheduleAlias } from 'src/modules/schedule/entities/schedule.entity';
 
@@ -13,8 +12,6 @@ import { scheduleCronJobRepository } from '../repositories/schedule-cron-job.rep
 
 @Injectable()
 export class ScheduleCronJobService {
-  constructor(private readonly schedulerRegistry: SchedulerRegistry) {}
-
   private createScheduleCronJobQueryBuilder() {
     return scheduleCronJobRepository
       .createQueryBuilder(scheduleCronJobAlias)
