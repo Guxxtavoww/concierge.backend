@@ -29,6 +29,7 @@ export class AuthController {
     return this.authService.registerAndLogin(registerDTO);
   }
 
+  @DataBaseInterceptorDecorator()
   @Public()
   @Post('refresh/:refresh_token')
   refresh(@Param('refresh_token') refresh_token: string) {

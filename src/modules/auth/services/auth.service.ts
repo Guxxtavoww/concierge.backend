@@ -32,20 +32,8 @@ export class AuthService {
     return this.buildAccessDTO(user, tokens);
   }
 
-  public async registerAndLogin({
-    password,
-    user_email,
-    user_name,
-    phone_number,
-    date_of_birth,
-  }: CreateUserPayload): Promise<AccessDTO> {
-    const newUser = await this.usersService.createUser({
-      user_email,
-      user_name,
-      password,
-      phone_number,
-      date_of_birth,
-    });
+  public async registerAndLogin(data: CreateUserPayload): Promise<AccessDTO> {
+    const newUser = await this.usersService.createUser(data);
 
     const tokens = await this.generateAccessAndRefreshToken(newUser);
 
@@ -53,19 +41,15 @@ export class AuthService {
   }
 
   public async refreshAccessToken(refreshToken: string) {
-    try {
-      const { id }: DecodedTokenType = await this.jwtService.verifyAsync(
-        refreshToken,
-        refreshJwtConfig,
-      );
+    const data: DecodedTokenType = await this.jwtService.verifyAsync(
+      refreshToken,
+      refreshJwtConfig,
+    );
 
-      const user = await this.usersService.getUserById(id);
-      const tokens = await this.generateAccessAndRefreshToken(user);
+    const user = await this.usersService.getUserById(data.id);
+    const tokens = await this.generateAccessAndRefreshToken(user);
 
-      return tokens;
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
+    return tokens;
   }
 
   private async validatePassword(user: User, password: string): Promise<void> {
