@@ -3,7 +3,6 @@ import {
   type CanActivate,
   type ExecutionContext,
   UnauthorizedException,
-  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
