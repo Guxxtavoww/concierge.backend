@@ -35,6 +35,8 @@ declare global {
   export type DecodedTokenType = IJwtPayload & {
     iat: number;
     exp: number;
+    aud: string;
+    iss: string;
   };
 
   export type PaginationArgs<T extends Record<string, any> = object> = T &

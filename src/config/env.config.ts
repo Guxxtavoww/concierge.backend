@@ -18,6 +18,8 @@ export const envSchema = z.object({
   REDIS_PORT: optionalStringToIntegerSchema.default('6379'),
   DB_USER: stringSchema,
   JWT_SECRET: stringSchema,
+  JWT_REFRESH_SECRET: stringSchema,
+  JWT_REFRESH_EXPIRES_IN: stringSchema,
   JWT_ISSUER: optionalUrlStringSchema,
   JWT_AUDIENCE: optionalUrlStringSchema,
   JWT_EXPIRES_IN: stringSchema,

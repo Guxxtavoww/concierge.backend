@@ -3,14 +3,13 @@ import {
   type CanActivate,
   type ExecutionContext,
   UnauthorizedException,
-  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 
 import { LogService } from 'src/lib/log/log.service';
-import { jwtConstants } from 'src/config/jwt.config';
+import { accessTokenConfig } from 'src/config/jwt.config';
 import { IS_PUBLIC_KEY } from 'src/shared/decorators/auth.decorator';
 import { DECODED_TOKEN_KEY } from 'src/shared/decorators/decoded-token.decorator';
 
@@ -39,7 +38,10 @@ export class AuthGuard implements CanActivate {
 
     try {
       if (token) {
-        const payload = await this.jwtService.verifyAsync(token, jwtConstants);
+        const payload = await this.jwtService.verifyAsync(
+          token,
+          accessTokenConfig,
+        );
 
         request[DECODED_TOKEN_KEY] = payload;
       }

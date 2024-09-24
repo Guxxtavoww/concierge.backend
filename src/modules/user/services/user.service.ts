@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import {
-  applyOrderByFilters,
   applyQueryFilters,
+  applyOrderByFilters,
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
@@ -32,23 +32,20 @@ export class UserService {
   async paginateUsers({
     limit,
     page,
-    order_by_created_at,
-    order_by_updated_at,
     user_name,
+    user_email,
+    ...orderBy
   }: PaginateUsersPayload) {
     const queryBuilder = this.createUserQueryBuilder();
 
     applyQueryFilters(
       alias,
       queryBuilder,
-      { user_name },
-      { user_name: 'LIKE' },
+      { user_name, user_email },
+      { user_name: 'LIKE', user_email: '=' },
     );
 
-    applyOrderByFilters(alias, queryBuilder, {
-      order_by_created_at,
-      order_by_updated_at,
-    });
+    applyOrderByFilters(alias, queryBuilder, orderBy);
 
     return this.paginationService.paginateWithQueryBuilder(queryBuilder, {
       limit,
@@ -68,7 +65,7 @@ export class UserService {
 
   async getUserById(id: string, selectPassword?: boolean) {
     const user = await this.createUserQueryBuilder(selectPassword)
-      .where(`'${alias}.id = :id'`, { id })
+      .where(`${alias}.id = :id`, { id })
       .getOne();
 
     if (!user) throw new NotFoundError('User not found!');

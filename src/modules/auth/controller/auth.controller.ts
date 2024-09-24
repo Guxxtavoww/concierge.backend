@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { Public } from 'src/shared/decorators/auth.decorator';
@@ -27,5 +27,12 @@ export class AuthController {
     @Body() registerDTO: CreateUserDTO,
   ): Promise<AccessDTO> {
     return this.authService.registerAndLogin(registerDTO);
+  }
+
+  @DataBaseInterceptorDecorator()
+  @Public()
+  @Post('refresh/:refresh_token')
+  refresh(@Param('refresh_token') refresh_token: string) {
+    return this.authService.refreshAccessToken(refresh_token);
   }
 }

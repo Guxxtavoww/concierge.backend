@@ -31,4 +31,7 @@ export class AccessDTO {
 
   @ApiProperty({ description: 'The access token' })
   access_token: string;
+
+  @ApiProperty({ description: 'The refresh token' })
+  refresh_token: string;
 }
