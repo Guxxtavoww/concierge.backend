@@ -14,6 +14,8 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Schedule } from 'src/modules/schedule/entities/schedule.entity';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 import { ScheduleInvite } from 'src/modules/schedule/entities/schedule-invite.entity';
+import { CondominiumChat } from 'src/modules/condominium-chat/entities/condominium-chat.entity';
+import { CondominiumChatMessage } from 'src/modules/condominium-chat/entities/condominium-chat-message.entity';
 
 import { Profession } from './profession.entity';
 import type { CreateCondominiumMemberPayload } from '../dtos/condominium-member/create-condominium-member.dto';
@@ -49,6 +51,12 @@ export class CondominiumMember extends Base {
 
   @OneToMany(() => ScheduleInvite, (invite) => invite.member)
   invites: ScheduleInvite[];
+
+  @OneToMany(() => CondominiumChat, (chat) => chat.admin)
+  administrated_chats: CondominiumChat[];
+
+  @OneToMany(() => CondominiumChatMessage, (message) => message.sended_by)
+  sended_messages: CondominiumChatMessage[];
 
   @ManyToMany(() => Schedule, (schedule) => schedule.participants)
   events: Schedule[];
