@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { User } from 'src/modules/user/entities/user.entity';
 
-export class UserDTO implements Partial<User> {
+export class UserDTO implements DeepPartial<User> {
   @ApiProperty({ description: 'The unique identifier of the user' })
   id: string;
 
