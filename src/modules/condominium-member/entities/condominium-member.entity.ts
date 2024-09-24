@@ -55,6 +55,9 @@ export class CondominiumMember extends Base {
   @OneToMany(() => CondominiumChat, (chat) => chat.admin)
   administrated_chats: CondominiumChat[];
 
+  @ManyToMany(() => CondominiumChat, (chat) => chat.participants)
+  participating_chats: CondominiumChat[];
+
   @OneToMany(() => CondominiumChatMessage, (message) => message.sended_by)
   sended_messages: CondominiumChatMessage[];
 

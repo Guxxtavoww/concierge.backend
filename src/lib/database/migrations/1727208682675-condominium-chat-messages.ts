@@ -76,7 +76,7 @@ export class CondominiumChatMessages1727208682675
       new TableForeignKey({
         columnNames: ['sended_by_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'condominium_members',
+        referencedTableName: 'condominium-members',
         onDelete: 'CASCADE',
       }),
     );

@@ -3,6 +3,8 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
@@ -37,6 +39,20 @@ export class CondominiumChat extends Base {
     (chat_message) => chat_message.condominium_chat,
   )
   messages: CondominiumChatMessage[];
+
+  @ManyToMany(() => CondominiumMember, (member) => member.participating_chats)
+  @JoinTable({
+    name: 'condominium-chat-members', // Nome da tabela de junção
+    joinColumn: {
+      name: 'chat_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'member_id',
+      referencedColumnName: 'id',
+    },
+  })
+  participants: CondominiumMember[];
 }
 
 export const adminAlias = 'admin';
