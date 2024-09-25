@@ -59,7 +59,11 @@ export class CondominiumChat extends Base {
   })
   participants: CondominiumMember[];
 
-  static create(payload: Omit<CreateCondominiumChatType, 'members_ids'> & { admin_id: string }) {
+  static create(
+    payload: Omit<CreateCondominiumChatType, 'members_ids'> & {
+      admin_id: string;
+    },
+  ) {
     const item = new CondominiumChat();
 
     Object.assign(item, payload);
@@ -77,6 +81,7 @@ export class CondominiumChat extends Base {
 }
 
 export const adminAlias = 'admin';
+export const participantsAlias = 'participants';
 export const condominiumChatAlias = 'condominium-chat';
 
 export type CondominiumChatSelect =

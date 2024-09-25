@@ -13,6 +13,7 @@ import {
   adminAlias,
   base_fields,
   CondominiumChat,
+  participantsAlias,
   condominiumChatAlias,
 } from '../entities/condominium-chat.entity';
 import type { CreateCondominiumChatType } from '../dtos/condominium-chat/create.dto';
@@ -28,10 +29,12 @@ export class CondominiumChatService {
   ) {}
 
   private createCondominiumChatQueryBuilder() {
-    return condominiumChatRepository
+    const queryBuilder = condominiumChatRepository
       .createQueryBuilder(condominiumChatAlias)
       .leftJoinAndSelect(`${condominiumChatAlias}.${adminAlias}`, adminAlias)
       .select(base_fields);
+
+    return queryBuilder;
   }
 
   private async checkPermission(
@@ -148,6 +151,27 @@ export class CondominiumChatService {
     return members;
   }
 
+  async getCondominiumChatParticipantsIdsByChatId(
+    chat_id: string,
+  ): Promise<string[]> {
+    const participants = await condominiumChatRepository
+      .createQueryBuilder(condominiumChatAlias)
+      .leftJoinAndSelect(
+        `${condominiumChatAlias}.${participantsAlias}`,
+        participantsAlias,
+      )
+      .select(`${participantsAlias}.id`)
+      .where(`${condominiumChatAlias}.id = :chat_id`, { chat_id })
+      .getMany();
+
+    const participantsIds: string[] = [];
+
+    for (const participant of participants)
+      participantsIds.push(participant.id);
+
+    return participantsIds;
+  }
+
   async addParticipantsToChat(
     chat_id_or_entity: string | CondominiumChat,
     member_ids: string[],
@@ -161,15 +185,16 @@ export class CondominiumChatService {
           )
         : chat_id_or_entity;
 
-    const membersToParticipate = await this.validateCondominiumMembers(
-      chat,
-      member_ids,
-    );
+    // valida se cada membro faz parte do condominium
+    const membersToParticipate = await this.validateCondominiumMembers(chat, [
+      ...new Set(member_ids),
+    ]);
 
     // Obter os IDs dos participantes já existentes no chat
-    const existingParticipantsSet = new Set(
-      chat.participants.map((participant) => participant.id),
-    );
+    const existingParticipants =
+      await this.getCondominiumChatParticipantsIdsByChatId(chat.id);
+
+    const existingParticipantsSet = new Set(existingParticipants);
 
     // Filtrar novos participantes que ainda não estão no chat
     const newParticipants = membersToParticipate.filter(
@@ -183,8 +208,14 @@ export class CondominiumChatService {
     }
 
     chat.participants = [...chat.participants, ...newParticipants];
+    chat.members_amount = chat.participants.length;
 
-    await condominiumChatRepository.save(chat);
+    await Promise.all([
+      condominiumChatRepository.save(chat),
+      condominiumChatRepository.update(chat.id, {
+        members_amount: chat.members_amount,
+      }),
+    ]);
 
     return chat.participants;
   }
@@ -195,22 +226,21 @@ export class CondominiumChatService {
     member_ids: string[],
     logged_in_user_id: string,
   ) {
+    // Valida permissões do usuário para o chat
     const chat = await this.validateChatAndPermission(
       chat_id,
       logged_in_user_id,
     );
 
-    const membersToRemove = await this.validateCondominiumMembers(
-      chat,
-      member_ids,
-    );
+    // Valida se os membros fornecidos pertencem ao condomínio
+    // Obter IDs dos participantes atuais do chat
+    const [membersToRemove, currentParticipantsIds] = await Promise.all([
+      this.validateCondominiumMembers(chat, member_ids),
+      this.getCondominiumChatParticipantsIdsByChatId(chat.id),
+    ]);
 
-    // Obter os IDs dos participantes atuais
-    const currentParticipantsSet = new Set(
-      chat.participants.map((participant) => participant.id),
-    );
+    const currentParticipantsSet = new Set(currentParticipantsIds);
 
-    // Filtrar os participantes que estão no chat e devem ser removidos
     const participantsToRemove = membersToRemove.filter((member) =>
       currentParticipantsSet.has(member.id),
     );
@@ -221,15 +251,27 @@ export class CondominiumChatService {
       );
     }
 
-    // Atualizar a lista de participantes removendo os selecionados
-    chat.participants = chat.participants.filter(
-      (participant) =>
-        !participantsToRemove.some((member) => member.id === participant.id),
+    // Remove os IDs dos participantes que devem ser removidos do conjunto de participantes atuais
+    const remainingParticipantsIds = currentParticipantsIds.filter(
+      (id) => !participantsToRemove.some((member) => member.id === id),
     );
 
-    await condominiumChatRepository.save(chat);
+    // Atualiza a relação de participantes no chat
+    await condominiumChatRepository
+      .createQueryBuilder()
+      .relation(CondominiumChat, 'participants')
+      .of(chat.id)
+      .remove(participantsToRemove.map((member) => member.id));
 
-    return chat.participants;
+    // Atualiza o número de membros do chat
+    chat.members_amount = remainingParticipantsIds.length;
+
+    // Persistir a atualização no banco de dados
+    await condominiumChatRepository.update(chat.id, {
+      members_amount: chat.members_amount,
+    });
+
+    return remainingParticipantsIds;
   }
 
   async updateCondominiumChat(
