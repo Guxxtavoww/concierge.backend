@@ -20,6 +20,7 @@ import type { CreateCondominiumChatType } from '../dtos/condominium-chat/create.
 import type { UpdateCondominiumChatType } from '../dtos/condominium-chat/update.dto';
 import { condominiumChatRepository } from '../repositories/condominium-chat.repository';
 import type { PaginateCondominiumChatsType } from '../dtos/condominium-chat/paginate.dto';
+import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 
 @Injectable()
 export class CondominiumChatService {
@@ -120,7 +121,9 @@ export class CondominiumChatService {
 
     members_ids.push(condominiumMember.id);
 
-    const savedChat = await condominiumChatRepository.save(chatToCreate);
+    const savedChat = await condominiumChatRepository
+      .save(chatToCreate)
+      .then((chat) => this.getCondominiumChatById(chat.id));
 
     if (members_ids.length) {
       await this.addParticipantsToChat(
@@ -194,10 +197,10 @@ export class CondominiumChatService {
     );
 
     // Obter os IDs dos participantes já existentes no chat
-    const existingParticipants =
+    const existingParticipantsIds =
       await this.getCondominiumChatParticipantsIdsByChatId(chat.id);
 
-    const existingParticipantsSet = new Set(existingParticipants);
+    const existingParticipantsSet = new Set(existingParticipantsIds);
 
     // Filtrar novos participantes que ainda não estão no chat
     const newParticipants = membersToParticipate.filter(
@@ -210,7 +213,10 @@ export class CondominiumChatService {
       );
     }
 
-    chat.participants = [...chat.participants, ...newParticipants];
+    chat.participants = [
+      ...existingParticipantsIds.map((id) => ({ id }) as CondominiumMember),
+      ...newParticipants,
+    ];
     chat.members_amount = chat.participants.length;
 
     await Promise.all([
@@ -234,6 +240,9 @@ export class CondominiumChatService {
       chat_id,
       logged_in_user_id,
     );
+
+    if (member_ids.includes(chat.admin.id))
+      throw new BadRequestError('Cannot remove the admin');
 
     // Valida se os membros fornecidos pertencem ao condomínio
     // Obter IDs dos participantes atuais do chat

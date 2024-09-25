@@ -12,6 +12,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
 
+import {
+  RemoveCondominiumChatMemberDTO,
+  RemoveCondominiumChatMemberSwagger,
+} from '../dtos/condominium-chat/remove-members.dto';
 import { CondominiumChatService } from '../services/condominium-chat.service';
 import { CreateCondominiumChatDTO } from '../dtos/condominium-chat/create.dto';
 import { UpdateCondominiumChatDTO } from '../dtos/condominium-chat/update.dto';
@@ -56,6 +60,20 @@ export class CondominiumChatController {
     return this.condominiumChatService.updateCondominiumChat(
       chat_id,
       payload,
+      decoded_token.id,
+    );
+  }
+
+  @RemoveCondominiumChatMemberSwagger()
+  @Delete('members/:chat_id')
+  deleteMembers(
+    @UuidParam('chat_id') chat_id: string,
+    @Body() body: RemoveCondominiumChatMemberDTO,
+    @DecodedToken() decoded_token: DecodedTokenType,
+  ) {
+    return this.condominiumChatService.removeParticipantsFromChat(
+      chat_id,
+      body,
       decoded_token.id,
     );
   }
