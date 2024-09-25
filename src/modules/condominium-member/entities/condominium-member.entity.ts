@@ -95,6 +95,7 @@ export const base_fields = [
 ] satisfies CondominiumMemberSelectKey[];
 
 export const perfomatic_fields = [
+  'condominium-member.id',
   'condominium-member.user_id',
   'condominium-member.condominium_id',
 ] satisfies CondominiumMemberSelectKey[];

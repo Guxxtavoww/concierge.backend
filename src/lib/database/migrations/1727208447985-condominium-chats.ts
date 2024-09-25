@@ -29,6 +29,11 @@ export class CondominiumChats1727208447985 implements MigrationInterface {
             default: 0,
           },
           {
+            name: 'members_amount',
+            type: 'int',
+            default: 0,
+          },
+          {
             name: 'admin_id',
             type: 'uuid',
           },

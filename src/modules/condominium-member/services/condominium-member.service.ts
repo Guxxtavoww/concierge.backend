@@ -107,7 +107,7 @@ export class CondominiumMemberService {
   async getMembershipsByUserIdsAndCondominiumId(
     condominium_id: string,
     user_ids: string[],
-  ): Promise<Pick<CondominiumMember, 'condominium_id' | 'user_id'>[]> {
+  ): Promise<Pick<CondominiumMember, 'condominium_id' | 'user_id' | 'id'>[]> {
     const results = await this.createPerfomaticCondominiumMemberQueryBuilder()
       .where(`${condominiumMemberAlias}.condominium_id = :condominium_id`, {
         condominium_id,
@@ -116,6 +116,44 @@ export class CondominiumMemberService {
         user_ids,
       })
       .take(user_ids.length)
+      .getMany();
+
+    return results;
+  }
+
+  async getParticipantsByChatIdAndMemberIds(
+    chat_id: string,
+    member_ids: string[],
+  ): Promise<CondominiumMember[]> {
+    return condominiumMemberRepository
+      .createQueryBuilder('condominium_member')
+      .leftJoin('condominium_member.participating_chats', 'condominium_chat')
+      .where('condominium_chat.id = :chat_id', { chat_id })
+      .andWhere('condominium_member.id IN (:...member_ids)', { member_ids })
+      .select([
+        'condominium_member.id',
+        'condominium_member.is_tenant',
+        'condominium_member.user_id',
+        'condominium_member.condominium_id',
+        'user.user_name',
+        'user.user_email',
+      ])
+      .leftJoin('condominium_member.user', 'user')
+      .getMany();
+  }
+
+  async getMembershipsByMemberIdsAndCondominiumId(
+    condominium_id: string,
+    members_ids: string[],
+  ): Promise<Pick<CondominiumMember, 'condominium_id' | 'user_id' | 'id'>[]> {
+    const results = await this.createPerfomaticCondominiumMemberQueryBuilder()
+      .where(`${condominiumMemberAlias}.condominium_id = :condominium_id`, {
+        condominium_id,
+      })
+      .andWhere(`${condominiumMemberAlias}.id IN (:...members_ids)`, {
+        members_ids,
+      })
+      .take(members_ids.length)
       .getMany();
 
     return results;

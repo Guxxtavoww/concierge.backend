@@ -3,12 +3,12 @@ import { createZodDto } from 'nestjs-zod';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
+  type OrderBy,
   optionalUuidSchema,
-  optionalStringSchema,
   optionalOrderParamSchema,
   optionalBooleanStringSchema,
   optionalFutureDatetimeSchema,
-  type OrderBy,
+  optionalStringSchemaToLowerCase,
 } from 'src/shared/schemas.shared';
 import { OrderByEnum } from 'src/shared/enums.shared';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
@@ -19,8 +19,8 @@ import { optionalScheduleTypeSchema } from '../schemas/schedule-type.schema';
 import { optionalScheduleStatusSchema } from '../schemas/schedule-status.schema';
 
 export const paginateSchedulesSchema = createPaginationSchema({
-  schedule_title: optionalStringSchema,
-  schedule_description: optionalStringSchema,
+  schedule_title: optionalStringSchemaToLowerCase,
+  schedule_description: optionalStringSchemaToLowerCase,
   schedule_status: optionalScheduleStatusSchema,
   schedule_type: optionalScheduleTypeSchema,
   scheduled_datetime_start: optionalFutureDatetimeSchema,

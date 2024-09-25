@@ -13,6 +13,8 @@ import { Base } from 'src/lib/database/entities/base.entity';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 
 import { CondominiumChatMessage } from './condominium-chat-message.entity';
+import type { CreateCondominiumChatType } from '../dtos/condominium-chat/create.dto';
+import type { UpdateCondominiumChatType } from '../dtos/condominium-chat/update.dto';
 
 @Entity('condominium-chats')
 export class CondominiumChat extends Base {
@@ -25,6 +27,9 @@ export class CondominiumChat extends Base {
 
   @Column('int', { default: 0 })
   messages_amount: number;
+
+  @Column('int', { default: 0 })
+  members_amount: number;
 
   @Index()
   @Column('uuid')
@@ -53,6 +58,22 @@ export class CondominiumChat extends Base {
     },
   })
   participants: CondominiumMember[];
+
+  static create(payload: Omit<CreateCondominiumChatType, 'members_ids'> & { admin_id: string }) {
+    const item = new CondominiumChat();
+
+    Object.assign(item, payload);
+
+    return item;
+  }
+
+  static update(payload: UpdateCondominiumChatType) {
+    const item = new CondominiumChat();
+
+    Object.assign(item, payload);
+
+    return item;
+  }
 }
 
 export const adminAlias = 'admin';
@@ -66,6 +87,7 @@ export const base_fields = [
   'condominium-chat.id',
   'condominium-chat.chat_title',
   'condominium-chat.chat_description',
+  'condominium-chat.members_amount',
   'condominium-chat.created_at',
   'condominium-chat.updated_at',
   'admin.id',
