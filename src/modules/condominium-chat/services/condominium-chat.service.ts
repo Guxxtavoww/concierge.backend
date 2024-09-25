@@ -118,6 +118,8 @@ export class CondominiumChatService {
       admin_id: condominiumMember.id,
     });
 
+    members_ids.push(condominiumMember.id);
+
     const savedChat = await condominiumChatRepository.save(chatToCreate);
 
     if (members_ids.length) {
