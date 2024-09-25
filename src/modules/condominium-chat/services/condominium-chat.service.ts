@@ -188,9 +188,10 @@ export class CondominiumChatService {
         : chat_id_or_entity;
 
     // valida se cada membro faz parte do condominium
-    const membersToParticipate = await this.validateCondominiumMembers(chat, [
-      ...new Set(member_ids),
-    ]);
+    const membersToParticipate = await this.validateCondominiumMembers(
+      chat,
+      member_ids,
+    );
 
     // Obter os IDs dos participantes já existentes no chat
     const existingParticipants =
