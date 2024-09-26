@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+
+import { ENV_VARIABLES } from 'src/config/env.config';
 
 import { CondominiumChatService } from './services/condominium-chat.service';
 import { CondominiumChatGateway } from './gateways/condominium-chat.gateway';
@@ -14,7 +17,17 @@ const providers = [
 ];
 
 @Module({
-  imports: [CondominiumMemberModule],
+  imports: [
+    CondominiumMemberModule,
+    JwtModule.register({
+      secret: ENV_VARIABLES.JWT_SECRET,
+      signOptions: {
+        expiresIn: ENV_VARIABLES.JWT_EXPIRES_IN,
+        audience: ENV_VARIABLES.JWT_AUDIENCE,
+        issuer: ENV_VARIABLES.JWT_ISSUER,
+      },
+    }),
+  ],
   controllers: [CondominiumChatController, CondominiumChatMessageController],
   providers,
   exports: providers,

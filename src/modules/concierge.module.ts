@@ -16,7 +16,7 @@ import { CondominiumMemberModule } from './condominium-member/condominium-member
     CondominiumMemberModule,
     ScheduleModule,
     HealthModule,
-    CondominiumChatModule
+    CondominiumChatModule,
   ],
 })
 export class ConciergeModule {}
