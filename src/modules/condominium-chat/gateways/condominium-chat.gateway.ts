@@ -30,7 +30,9 @@ import { UseWsJwtGuard } from '../guards/ws-jwt.guard';
 import { CondominiumChatMessageService } from '../services/condominium-chat-message.service';
 
 @WebSocketGateway(ENV_VARIABLES.WEBSOCKET_PORT, {
-  cors: corsConfig.allowedDomains,
+  cors: {
+    origin: corsConfig.allowedDomains,
+  },
   path: '/condominium-chat',
 })
 export class CondominiumChatGateway

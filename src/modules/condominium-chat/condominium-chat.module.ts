@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { ENV_VARIABLES } from 'src/config/env.config';
 
+import { WsJwtGuard } from './guards/ws-jwt.guard';
 import { CondominiumChatService } from './services/condominium-chat.service';
 import { CondominiumChatGateway } from './gateways/condominium-chat.gateway';
 import { CondominiumChatController } from './controllers/condominium-chat.controller';
@@ -14,6 +15,7 @@ const providers = [
   CondominiumChatService,
   CondominiumChatMessageService,
   CondominiumChatGateway,
+  WsJwtGuard,
 ];
 
 @Module({

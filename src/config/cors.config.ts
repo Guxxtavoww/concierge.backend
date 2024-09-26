@@ -1,7 +1,4 @@
-export const allowedDomains = [
-  'http://localhost:5000',
-  'http://localhost:3000',
-];
+export const allowedDomains = '*';
 
 export const corsConfig = {
   allowedDomains,
