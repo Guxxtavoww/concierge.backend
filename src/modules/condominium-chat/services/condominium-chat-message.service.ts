@@ -12,6 +12,7 @@ import {
   CondominiumChatMessage,
   condominiumChatMessageAlias,
 } from '../entities/condominium-chat-message.entity';
+import type { DeleteChatMessageType } from '../dtos/condominium-chat-message/delete.dto';
 import type { CreateCondominiumChatMessageType } from '../dtos/condominium-chat-message/create.dto';
 import type { UpdateCondominiumChatMessageType } from '../dtos/condominium-chat-message/update.dto';
 import { condominiumChatMessageRepository } from '../repositories/condominium-chat-message.repository';
@@ -79,23 +80,17 @@ export class CondominiumChatMessageService {
     return message;
   }
 
-  async sendMessage(
-    condominium_chat_id: string,
-    payload: CreateCondominiumChatMessageType,
-  ) {
-    const messageToCreate = CondominiumChatMessage.create({
-      ...payload,
-      condominium_chat_id,
-    });
+  async sendMessage(payload: CreateCondominiumChatMessageType) {
+    const messageToCreate = CondominiumChatMessage.create(payload);
 
     return condominiumChatMessageRepository.save(messageToCreate);
   }
 
-  async updateMessage(
-    message_id: string,
-    member_id: string,
-    payload: UpdateCondominiumChatMessageType,
-  ) {
+  async updateMessage({
+    member_id,
+    message_id,
+    message_text,
+  }: UpdateCondominiumChatMessageType) {
     const messageToUpdate = await this.getMessageAndCheckPermission(
       message_id,
       member_id,
@@ -103,11 +98,11 @@ export class CondominiumChatMessageService {
 
     return condominiumChatMessageRepository.update(
       messageToUpdate.id,
-      CondominiumChatMessage.update(payload),
+      CondominiumChatMessage.update({ message_text }),
     );
   }
 
-  async deleteMessage(message_id: string, member_id: string) {
+  async deleteMessage({ member_id, message_id }: DeleteChatMessageType) {
     const messageToDelete = await this.getMessageAndCheckPermission(
       message_id,
       member_id,

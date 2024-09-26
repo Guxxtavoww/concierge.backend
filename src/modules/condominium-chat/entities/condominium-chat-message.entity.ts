@@ -39,7 +39,9 @@ export class CondominiumChatMessage extends Base {
     return item;
   }
 
-  static update(payload: UpdateCondominiumChatMessageType) {
+  static update(
+    payload: Pick<UpdateCondominiumChatMessageType, 'message_text'>,
+  ) {
     const item = new CondominiumChatMessage();
 
     Object.assign(item, payload);
