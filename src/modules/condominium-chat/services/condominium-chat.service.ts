@@ -75,6 +75,7 @@ export class CondominiumChatService {
     admin_id,
     chat_description,
     chat_title,
+    condominium_id,
     ...orderBy
   }: PaginateCondominiumChatsType) {
     const queryBuilder = this.createCondominiumChatQueryBuilder();
@@ -85,7 +86,12 @@ export class CondominiumChatService {
       { chat_description, chat_title },
       { chat_description: 'LIKE', chat_title: 'LIKE' },
     );
-    applyQueryFilters(adminAlias, queryBuilder, { id: admin_id }, { id: '=' });
+    applyQueryFilters(
+      adminAlias,
+      queryBuilder,
+      { id: admin_id, condominium_id },
+      { id: '=', condominium_id: '=' },
+    );
     applyOrderByFilters(condominiumChatAlias, queryBuilder, orderBy);
 
     return this.paginationService.paginateWithQueryBuilder(queryBuilder, {
@@ -214,10 +220,7 @@ export class CondominiumChatService {
     return participantsIds;
   }
 
-  async getChatParticipantIdByChatId(
-    chat_id: string,
-    member_id: string,
-  ) {
+  async getChatParticipantIdByChatId(chat_id: string, member_id: string) {
     const participant = await this.createParticipantQueryBuilder()
       .where(`${condominiumChatAlias}.id = :chat_id`, { chat_id })
       .andWhere(`${participantsAlias}.id = :member_id`, { member_id })

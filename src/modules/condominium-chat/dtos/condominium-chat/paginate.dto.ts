@@ -1,17 +1,19 @@
 import { z } from 'nestjs-zod/z';
 import { createZodDto } from 'nestjs-zod';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
   optionalUuidSchema,
   optionalOrderParamSchema,
   optionalStringSchemaToLowerCase,
+  uuidSchema,
 } from 'src/shared/schemas.shared';
 import { OrderByEnum } from 'src/shared/enums.shared';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
 
 export const paginateCondominiumChatsSchema = createPaginationSchema({
   admin_id: optionalUuidSchema,
+  condominium_id: uuidSchema,
   chat_title: optionalStringSchemaToLowerCase,
   chat_description: optionalStringSchemaToLowerCase,
   order_by_messages_amount: optionalOrderParamSchema,
@@ -39,4 +41,7 @@ export class PaginateCondominiumChatsDTO extends createZodDto(
 
   @ApiPropertyOptional({ enum: OrderByEnum })
   order_by_members_amount?: OrderByEnum;
+
+  @ApiProperty()
+  condominium_id: string;
 }

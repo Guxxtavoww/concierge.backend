@@ -12,7 +12,6 @@ import {
   CondominiumChatMessage,
   condominiumChatMessageAlias,
 } from '../entities/condominium-chat-message.entity';
-import { CondominiumChatService } from './condominium-chat.service';
 import type { CreateCondominiumChatMessageType } from '../dtos/condominium-chat-message/create.dto';
 import type { UpdateCondominiumChatMessageType } from '../dtos/condominium-chat-message/update.dto';
 import { condominiumChatMessageRepository } from '../repositories/condominium-chat-message.repository';
@@ -20,10 +19,7 @@ import type { PaginateCondominiumChatMessagesType } from '../dtos/condominium-ch
 
 @Injectable()
 export class CondominiumChatMessageService {
-  constructor(
-    private readonly paginationService: PaginationService,
-    private readonly condominiumChatService: CondominiumChatService,
-  ) {}
+  constructor(private readonly paginationService: PaginationService) {}
 
   private createChatMessageQueryBuilder() {
     return condominiumChatMessageRepository
@@ -87,11 +83,6 @@ export class CondominiumChatMessageService {
     condominium_chat_id: string,
     payload: CreateCondominiumChatMessageType,
   ) {
-    await this.condominiumChatService.getChatParticipantIdByChatId(
-      condominium_chat_id,
-      payload.sended_by_id,
-    );
-
     const messageToCreate = CondominiumChatMessage.create({
       ...payload,
       condominium_chat_id,

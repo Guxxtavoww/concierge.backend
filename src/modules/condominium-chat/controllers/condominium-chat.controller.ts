@@ -11,6 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { UuidParam } from 'src/shared/decorators/uuid-param.decorator';
 import { DecodedToken } from 'src/shared/decorators/decoded-token.decorator';
+import { ApiPaginationQuery } from 'src/shared/decorators/api-pagination-query.decorator';
 
 import {
   RemoveCondominiumChatMemberDTO,
@@ -28,6 +29,7 @@ export class CondominiumChatController {
     private readonly condominiumChatService: CondominiumChatService,
   ) {}
 
+  @ApiPaginationQuery()
   @Get('paginate')
   paginate(@Query() querys: PaginateCondominiumChatsDTO) {
     return this.condominiumChatService.paginateCondominiumChats(querys);
