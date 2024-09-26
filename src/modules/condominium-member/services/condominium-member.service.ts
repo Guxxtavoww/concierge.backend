@@ -58,6 +58,7 @@ export class CondominiumMemberService {
       .select(perfomatic_fields);
   }
 
+
   async paginateMemberships({
     limit,
     page,

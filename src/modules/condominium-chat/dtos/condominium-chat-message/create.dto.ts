@@ -9,6 +9,7 @@ import { maxLengthForMessageText } from '../../entities/condominium-chat-message
 export const createCondominiumChatMessageSchema = z.object({
   message_text: stringSchema.max(maxLengthForMessageText),
   condominium_chat_id: uuidSchema,
+  sended_by_id: uuidSchema,
 });
 
 export type CreateCondominiumChatMessageType = z.infer<
@@ -23,4 +24,7 @@ export class CreateCondominiumChatMessageDTO extends createZodDto(
 
   @ApiProperty()
   condominium_chat_id: string;
+
+  @ApiProperty()
+  sended_by_id: string;
 }

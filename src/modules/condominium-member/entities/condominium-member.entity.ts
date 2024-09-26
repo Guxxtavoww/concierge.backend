@@ -83,7 +83,8 @@ export const condominiumMemberAlias = 'condominium-member';
 
 export type CondominiumMemberSelectKey =
   | `${typeof condominiumMemberAlias}.${keyof CondominiumMember}`
-  | `${typeof userAlias}.${keyof User}`;
+  | `${typeof userAlias}.${keyof User}`
+  | `condominium.${keyof Condominium}`;
 
 export const base_fields = [
   'condominium-member.id',
@@ -106,3 +107,4 @@ export const base_fields_with_events = [
   'user.user_name',
   'user.user_email',
 ];
+

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 
 import {
   applyQueryFilters,
@@ -150,22 +154,55 @@ export class CondominiumChatService {
       )) as CondominiumMember[];
 
     if (members.length !== memberIdsSet.size) {
-      throw new NotFoundError('Some members are not part of the condominium');
+      const foundMemberIdsSet = new Set(members.map((member) => member.id));
+      const nonMembers: string[] = [];
+
+      for (const id of memberIdsSet) {
+        if (!foundMemberIdsSet.has(id)) nonMembers.push(id);
+      }
+
+      if (nonMembers.length > 0) {
+        throw new NotFoundError(
+          `Some members are not part of the condominium: ${nonMembers.join(', ')}`,
+        );
+      }
+    }
+
+    const participantsIds =
+      await this.getCondominiumChatParticipantsIdsByChatId(chat.id);
+
+    // Usar um Set para IDs de membros já no chat para verificação rápida
+    const chatMemberIdsSet = new Set(participantsIds);
+    const membersAlreadyInChat: string[] = [];
+
+    for (const member of members) {
+      if (chatMemberIdsSet.has(member.id)) membersAlreadyInChat.push(member.id);
+    }
+
+    // Lançar erro se houver membros já no chat
+    if (membersAlreadyInChat.length > 0) {
+      throw new ConflictException(
+        `Some members are already part of the chat: ${membersAlreadyInChat.join(', ')}`,
+      );
     }
 
     return members;
   }
 
-  async getCondominiumChatParticipantsIdsByChatId(
-    chat_id: string,
-  ): Promise<string[]> {
-    const participants = await condominiumChatRepository
+  private createParticipantQueryBuilder() {
+    return condominiumChatRepository
       .createQueryBuilder(condominiumChatAlias)
       .leftJoinAndSelect(
         `${condominiumChatAlias}.${participantsAlias}`,
         participantsAlias,
       )
-      .select(`${participantsAlias}.id`)
+      .select(`${participantsAlias}.id`);
+  }
+
+  async getCondominiumChatParticipantsIdsByChatId(
+    chat_id: string,
+  ): Promise<string[]> {
+    const participants = await this.createParticipantQueryBuilder()
       .where(`${condominiumChatAlias}.id = :chat_id`, { chat_id })
       .getMany();
 
@@ -175,6 +212,20 @@ export class CondominiumChatService {
       participantsIds.push(participant.id);
 
     return participantsIds;
+  }
+
+  async getChatParticipantIdByChatId(
+    chat_id: string,
+    member_id: string,
+  ) {
+    const participant = await this.createParticipantQueryBuilder()
+      .where(`${condominiumChatAlias}.id = :chat_id`, { chat_id })
+      .andWhere(`${participantsAlias}.id = :member_id`, { member_id })
+      .getOne();
+
+    if (!participant) throw new NotFoundError('Invalid participant or chat!');
+
+    return participant;
   }
 
   async addParticipantsToChat(
