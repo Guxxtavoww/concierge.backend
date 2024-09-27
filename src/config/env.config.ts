@@ -4,6 +4,7 @@ import { z } from 'nestjs-zod/z';
 import {
   stringSchema,
   optionalStringSchema,
+  stringToIntegerSchema,
   optionalUrlStringSchema,
   optionalStringToIntegerSchema,
 } from 'src/shared/schemas.shared';
@@ -15,7 +16,8 @@ export const envSchema = z.object({
   DATABASE_HOST: optionalStringSchema.default('localhost'),
   REDIS_HOST: optionalStringSchema.default('localhost'),
   REDIS_PASSWORD: stringSchema,
-  REDIS_PORT: optionalStringToIntegerSchema.default('6379'),
+  REDIS_PORT: stringToIntegerSchema,
+  WEBS0CKET_REDIS_PORT: stringToIntegerSchema,
   DB_USER: stringSchema,
   JWT_SECRET: stringSchema,
   JWT_REFRESH_SECRET: stringSchema,

@@ -40,8 +40,6 @@ export class WsJwtGuard implements CanActivate {
     } catch (error) {
       this.logService.logger?.warn(error);
 
-      client.disconnect();
-
       return false;
     }
   }

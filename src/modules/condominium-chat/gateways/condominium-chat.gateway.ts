@@ -1,10 +1,10 @@
 import {
+  MessageBody,
   WebSocketGateway,
   SubscribeMessage,
   WebSocketServer,
   type OnGatewayConnection,
   type OnGatewayDisconnect,
-  MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -34,6 +34,7 @@ type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect;
 @WebSocketGateway(ENV_VARIABLES.WEBSOCKET_PORT, {
   namespace: '/condominium-chat',
   cors: corsConfig.allowedWsDomains,
+  transports: ['websocket'],
 })
 export class CondominiumChatGateway implements GatewayMethods {
   constructor(
@@ -46,6 +47,8 @@ export class CondominiumChatGateway implements GatewayMethods {
 
   @UseWsJwtGuard()
   async handleConnection(client: Socket) {
+    this.logService.logger?.log(`Client connected: ${client.id}`);
+
     const decodedToken = client.data[DECODED_TOKEN_KEY] as DecodedTokenType;
 
     this.logService.logger?.log(`User ${decodedToken.id} connected`, {

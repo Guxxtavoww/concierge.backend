@@ -15,6 +15,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   try {
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
+
+    app.useWebSocketAdapter(redisIoAdapter);
+
     app.enableCors({
       origin: corsConfig.allowedDomains,
     });
@@ -33,11 +38,6 @@ async function bootstrap() {
       new NotFoundInterceptor(),
       new DataBaseInterceptor(),
     );
-
-    const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
-
-    app.useWebSocketAdapter(redisIoAdapter);
 
     if (IS_DEV_ENV) {
       const [{ SwaggerModule }, { swaggerConfig }, { writeFileSync }] =
