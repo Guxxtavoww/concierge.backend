@@ -32,10 +32,8 @@ import { CondominiumChatMessageService } from '../services/condominium-chat-mess
 type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect;
 
 @WebSocketGateway(ENV_VARIABLES.WEBSOCKET_PORT, {
-  cors: {
-    origin: corsConfig.allowedWsDomains,
-  },
   namespace: '/condominium-chat',
+  cors: corsConfig.allowedWsDomains,
 })
 export class CondominiumChatGateway implements GatewayMethods {
   constructor(
