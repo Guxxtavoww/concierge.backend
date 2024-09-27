@@ -27,7 +27,10 @@ async function bootstrap() {
      * -----------------------------------------------------------------------------
      */
     const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
+    const test = await redisIoAdapter.connectToRedis();
+
+    Logger.log(JSON.stringify(test));
+
     app.useWebSocketAdapter(redisIoAdapter);
 
     /**
