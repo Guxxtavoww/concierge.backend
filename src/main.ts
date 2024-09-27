@@ -15,10 +15,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   try {
-    const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
+    // const redisIoAdapter = new RedisIoAdapter(app);
+    // await redisIoAdapter.connectToRedis();
 
-    app.useWebSocketAdapter(redisIoAdapter);
+    // app.useWebSocketAdapter(redisIoAdapter);
 
     app.enableCors({
       origin: corsConfig.allowedDomains,
