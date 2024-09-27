@@ -29,15 +29,15 @@ import {
 import { UseWsJwtGuard } from '../guards/ws-jwt.guard';
 import { CondominiumChatMessageService } from '../services/condominium-chat-message.service';
 
+type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect;
+
 @WebSocketGateway(ENV_VARIABLES.WEBSOCKET_PORT, {
   cors: {
-    origin: corsConfig.allowedDomains,
+    origin: corsConfig.allowedWsDomains,
   },
-  path: '/condominium-chat',
+  namespace: '/condominium-chat',
 })
-export class CondominiumChatGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class CondominiumChatGateway implements GatewayMethods {
   constructor(
     private readonly logService: LogService,
     private readonly condominiumChatMessageService: CondominiumChatMessageService,
@@ -63,18 +63,30 @@ export class CondominiumChatGateway
 
   @UseWsJwtGuard()
   @SubscribeMessage('join-room')
-  handleJoinRoom(client: Socket, roomId: string) {
-    client.join(roomId);
-    this.server.to(roomId).emit('user-joined', { userId: client.id });
-    this.logService.logger?.log(`User ${client.id} joined room ${roomId}`);
+  handleJoinRoom(client: Socket, condominium_chat_id: string) {
+    client.join(condominium_chat_id);
+
+    this.server
+      .to(condominium_chat_id)
+      .emit('user-joined', { userId: client.id });
+
+    this.logService.logger?.log(
+      `User ${client.id} joined room ${condominium_chat_id}`,
+    );
   }
 
   @UseWsJwtGuard()
   @SubscribeMessage('leave-room')
-  handleLeaveRoom(client: Socket, roomId: string) {
-    client.leave(roomId);
-    this.server.to(roomId).emit('user-left', { userId: client.id });
-    this.logService.logger?.log(`User ${client.id} left room ${roomId}`);
+  handleLeaveRoom(client: Socket, condominium_chat_id: string) {
+    client.leave(condominium_chat_id);
+
+    this.server
+      .to(condominium_chat_id)
+      .emit('user-left', { userId: client.id });
+
+    this.logService.logger?.log(
+      `User ${client.id} left room ${condominium_chat_id}`,
+    );
   }
 
   @UseWsJwtGuard()

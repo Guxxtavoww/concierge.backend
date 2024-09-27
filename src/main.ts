@@ -34,10 +34,10 @@ async function bootstrap() {
       new DataBaseInterceptor(),
     );
 
-    // const redisIoAdapter = new RedisIoAdapter(app);
-    // await redisIoAdapter.connectToRedis();
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
 
-    // app.useWebSocketAdapter(redisIoAdapter);
+    app.useWebSocketAdapter(redisIoAdapter);
 
     if (IS_DEV_ENV) {
       const [{ SwaggerModule }, { swaggerConfig }, { writeFileSync }] =
