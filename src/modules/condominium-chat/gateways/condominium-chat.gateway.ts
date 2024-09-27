@@ -3,6 +3,7 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   WebSocketServer,
+  type OnGatewayInit,
   type OnGatewayConnection,
   type OnGatewayDisconnect,
 } from '@nestjs/websockets';
@@ -10,7 +11,6 @@ import { Server, Socket } from 'socket.io';
 
 import { corsConfig } from 'src/config/cors.config';
 import { LogService } from 'src/lib/log/log.service';
-import { ENV_VARIABLES } from 'src/config/env.config';
 import { DECODED_TOKEN_KEY } from 'src/shared/decorators/decoded-token.decorator';
 
 import { UseZodPipe } from '../pipes/zod.pipe';
@@ -29,21 +29,25 @@ import {
 import { UseWsJwtGuard } from '../guards/ws-jwt.guard';
 import { CondominiumChatMessageService } from '../services/condominium-chat-message.service';
 
-type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect;
+type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect & OnGatewayInit;
 
-@WebSocketGateway(ENV_VARIABLES.WEBSOCKET_PORT, {
-  namespace: '/condominium-chat',
-  cors: corsConfig.allowedWsDomains,
-  transports: ['websocket'],
+@WebSocketGateway({
+  namespace: '/server/condominium-chat',
+  cors: { origin: corsConfig.allowedWsDomains },
+  transports: ['websocket', 'polling'],
 })
 export class CondominiumChatGateway implements GatewayMethods {
   constructor(
-    private readonly logService: LogService,
     private readonly condominiumChatMessageService: CondominiumChatMessageService,
+    private readonly logService: LogService,
   ) {}
 
   @WebSocketServer()
   readonly server: Server;
+
+  afterInit() {
+    this.logService.logger?.log('Socket initialized');
+  }
 
   @UseWsJwtGuard()
   async handleConnection(client: Socket) {

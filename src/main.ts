@@ -15,16 +15,20 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   try {
-    // const redisIoAdapter = new RedisIoAdapter(app);
-    // await redisIoAdapter.connectToRedis();
-
-    // app.useWebSocketAdapter(redisIoAdapter);
-
     app.enableCors({
       origin: corsConfig.allowedDomains,
     });
     app.enableShutdownHooks();
     app.setGlobalPrefix('server');
+
+    /**
+     * -----------------------------------------------------------------------------
+     * REDIS Adapter
+     * -----------------------------------------------------------------------------
+     */
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
 
     /**
      * -----------------------------------------------------------------------------

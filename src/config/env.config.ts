@@ -26,7 +26,6 @@ export const envSchema = z.object({
   JWT_AUDIENCE: optionalUrlStringSchema,
   JWT_EXPIRES_IN: stringSchema,
   PORT: optionalStringToIntegerSchema.default('5000'),
-  WEBSOCKET_PORT: optionalStringToIntegerSchema.default('9090'),
   ENV: z.enum(['prod', 'dev']).default('dev'),
 });
 
