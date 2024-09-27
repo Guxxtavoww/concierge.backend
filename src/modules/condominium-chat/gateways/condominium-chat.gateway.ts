@@ -46,7 +46,7 @@ export class CondominiumChatGateway implements GatewayMethods {
   readonly server: Server;
 
   afterInit() {
-    this.logService.logger?.log('Socket initialized');
+    this.logService.logger?.debug('Socket initialized');
   }
 
   @UseWsJwtGuard()
