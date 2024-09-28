@@ -26,7 +26,6 @@ import {
   deleteChatMessageSchema,
   type DeleteChatMessageType,
 } from '../dtos/condominium-chat-message/delete.dto';
-import { UseWsJwtGuard } from '../guards/ws-jwt.guard';
 import { CondominiumChatMessageService } from '../services/condominium-chat-message.service';
 
 type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect & OnGatewayInit;
@@ -49,15 +48,12 @@ export class CondominiumChatGateway implements GatewayMethods {
     this.logService.logger?.debug('Socket initialized');
   }
 
-  @UseWsJwtGuard()
   async handleConnection(client: Socket) {
-    this.logService.logger?.log(`Client connected: ${client.id}`);
-
     const decodedToken = client.data[DECODED_TOKEN_KEY] as DecodedTokenType;
 
-    this.logService.logger?.log(`User ${decodedToken.id} connected`, {
-      socket_id: client.id,
-    });
+    this.logService.logger?.log(
+      `Client connected: ${client.id}, User ${decodedToken?.id} connected`,
+    );
   }
 
   handleDisconnect(client: Socket) {
@@ -66,7 +62,6 @@ export class CondominiumChatGateway implements GatewayMethods {
     this.logService.logger?.warn(`User ${decodedToken.id} disconnected`);
   }
 
-  @UseWsJwtGuard()
   @SubscribeMessage('join-room')
   handleJoinRoom(client: Socket, condominium_chat_id: string) {
     client.join(condominium_chat_id);
@@ -80,7 +75,6 @@ export class CondominiumChatGateway implements GatewayMethods {
     );
   }
 
-  @UseWsJwtGuard()
   @SubscribeMessage('leave-room')
   handleLeaveRoom(client: Socket, condominium_chat_id: string) {
     client.leave(condominium_chat_id);
@@ -94,7 +88,6 @@ export class CondominiumChatGateway implements GatewayMethods {
     );
   }
 
-  @UseWsJwtGuard()
   @UseZodPipe(createCondominiumChatMessageSchema)
   @SubscribeMessage('send-message')
   async handleSendMessage(
@@ -111,7 +104,6 @@ export class CondominiumChatGateway implements GatewayMethods {
     return message;
   }
 
-  @UseWsJwtGuard()
   @UseZodPipe(updateCondominiumChatMessageSchema)
   @SubscribeMessage('update-message')
   async handleUpdateMessage(
@@ -124,7 +116,6 @@ export class CondominiumChatGateway implements GatewayMethods {
     return message;
   }
 
-  @UseWsJwtGuard()
   @UseZodPipe(deleteChatMessageSchema)
   @SubscribeMessage('delete-message')
   async handleDeleteMessage(

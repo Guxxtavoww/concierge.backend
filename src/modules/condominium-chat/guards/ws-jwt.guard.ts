@@ -1,11 +1,6 @@
-import {
-  Injectable,
-  UseGuards,
-  CanActivate,
-  ExecutionContext,
-} from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Socket } from 'socket.io';
 
 import { LogService } from 'src/lib/log/log.service';
 import { accessTokenConfig } from 'src/config/jwt.config';
@@ -19,14 +14,14 @@ export class WsJwtGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (context.getType() !== 'ws') return true;
+
     const client: Socket = context.switchToWs().getClient();
     const token = this.getTokenFromHandshake(client);
 
-    if (!token) {
-      this.logService.logger?.warn('No token found in WebSocket handshake');
+    this.logService.logger?.verbose(client.connected);
 
-      return false;
-    }
+    if (!token) return false;
 
     try {
       const decoded = await this.jwtService.verifyAsync<DecodedTokenType>(
@@ -38,15 +33,15 @@ export class WsJwtGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      this.logService.logger?.warn(error);
-
-      return false;
+      return false
     }
   }
 
   private getTokenFromHandshake(client: Socket): Maybe<string> {
     const queryToken = client.handshake?.query?.token;
     const authHeader = client.handshake?.headers?.authorization;
+
+    this.logService.logger?.log({ queryToken, authHeader });
 
     if (authHeader && authHeader.startsWith('Bearer '))
       return authHeader.split(' ')[1];
@@ -55,8 +50,4 @@ export class WsJwtGuard implements CanActivate {
 
     return null;
   }
-}
-
-export function UseWsJwtGuard() {
-  return UseGuards(WsJwtGuard);
 }

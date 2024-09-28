@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
 
 import { WsJwtGuard } from './guards/ws-jwt.guard';
 import { CondominiumChatService } from './services/condominium-chat.service';
@@ -13,13 +14,12 @@ const providers = [
   CondominiumChatService,
   CondominiumChatMessageService,
   CondominiumChatGateway,
-  WsJwtGuard,
 ];
 
 @Module({
   imports: [CondominiumMemberModule, JwtModule],
   controllers: [CondominiumChatController, CondominiumChatMessageController],
-  providers,
+  providers: [...providers, { provide: APP_GUARD, useClass: WsJwtGuard }],
   exports: providers,
 })
 export class CondominiumChatModule {}
