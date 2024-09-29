@@ -2,16 +2,12 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 
-import { LogService } from 'src/lib/log/log.service';
 import { accessTokenConfig } from 'src/config/jwt.config';
 import { DECODED_TOKEN_KEY } from 'src/shared/decorators/decoded-token.decorator';
 
 @Injectable()
 export class WsJwtGuard implements CanActivate {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly logService: LogService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (context.getType() !== 'ws') return true;
@@ -31,7 +27,7 @@ export class WsJwtGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      return false
+      return false;
     }
   }
 
