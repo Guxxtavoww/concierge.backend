@@ -19,8 +19,6 @@ export class WsJwtGuard implements CanActivate {
     const client: Socket = context.switchToWs().getClient();
     const token = this.getTokenFromHandshake(client);
 
-    this.logService.logger?.verbose(client.connected);
-
     if (!token) return false;
 
     try {
@@ -41,7 +39,7 @@ export class WsJwtGuard implements CanActivate {
     const queryToken = client.handshake?.query?.token;
     const authHeader = client.handshake?.headers?.authorization;
 
-    this.logService.logger?.log({ queryToken, authHeader });
+    console.log({ queryToken, authHeader });
 
     if (authHeader && authHeader.startsWith('Bearer '))
       return authHeader.split(' ')[1];
