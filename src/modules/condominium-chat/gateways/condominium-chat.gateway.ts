@@ -7,7 +7,9 @@ import {
   type OnGatewayConnection,
   type OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { Queue } from 'bull';
 import { Server, Socket } from 'socket.io';
+import { InjectQueue } from '@nestjs/bull';
 
 import { corsConfig } from 'src/config/cors.config';
 import { LogService } from 'src/lib/log/log.service';
@@ -27,7 +29,10 @@ import {
   deleteChatMessageSchema,
   type DeleteChatMessageType,
 } from '../dtos/condominium-chat-message/delete.dto';
-import { CondominiumChatMessageService } from '../services/condominium-chat-message.service';
+import {
+  CONDOMINIUM_CHAT_MESSAGE_PROCESSOR,
+  CONDOMINIUM_CHAT_MESSAGE_KEYS,
+} from '../processors/condominium-chat-message.processor';
 
 type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect & OnGatewayInit;
 
@@ -40,7 +45,8 @@ export class CondominiumChatGateway implements GatewayMethods {
   constructor(
     private readonly logService: LogService,
     private readonly wsJwtGuard: WsJwtGuard,
-    private readonly condominiumChatMessageService: CondominiumChatMessageService,
+    @InjectQueue(CONDOMINIUM_CHAT_MESSAGE_PROCESSOR)
+    private condominiumChatMessageQueue: Queue,
   ) {}
 
   @WebSocketServer()
@@ -94,8 +100,10 @@ export class CondominiumChatGateway implements GatewayMethods {
   ) {
     const roomId = payload.condominium_chat_id;
 
-    const message =
-      await this.condominiumChatMessageService.sendMessage(payload);
+    const message = await this.condominiumChatMessageQueue.add(
+      CONDOMINIUM_CHAT_MESSAGE_KEYS.SEND,
+      payload,
+    );
 
     this.server.to(roomId).emit('receive-message', message);
 
@@ -108,8 +116,10 @@ export class CondominiumChatGateway implements GatewayMethods {
     _client: Socket,
     @MessageBody() payload: UpdateCondominiumChatMessageType,
   ) {
-    const message =
-      await this.condominiumChatMessageService.updateMessage(payload);
+    const message = await this.condominiumChatMessageQueue.add(
+      CONDOMINIUM_CHAT_MESSAGE_KEYS.UPDATE,
+      payload,
+    );
 
     return message;
   }
@@ -120,8 +130,10 @@ export class CondominiumChatGateway implements GatewayMethods {
     _client: Socket,
     @MessageBody() payload: DeleteChatMessageType,
   ) {
-    const message =
-      await this.condominiumChatMessageService.deleteMessage(payload);
+    const message = await this.condominiumChatMessageQueue.add(
+      CONDOMINIUM_CHAT_MESSAGE_KEYS.DELETE,
+      payload,
+    );
 
     return message;
   }

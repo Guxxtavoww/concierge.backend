@@ -26,8 +26,11 @@ import {
   createdByAlias,
   schedule_base_fields,
 } from '../entities/schedule.entity';
+import {
+  SCHEDULE_PROCESSOR,
+  SCHEDULE_PROCESS_KEY,
+} from '../processors/schedule.processor';
 import { ScheduleStatus } from '../enums/schedule-status.enum';
-import { SCHEDULE_PROCESS_KEY } from '../processors/schedule.processor';
 import { scheduleRepository } from '../repositories/schedule.repository';
 import type { CreateSchedulePayload } from '../dtos/create-schedule.dto';
 import type { UpdateSchedulePayload } from '../dtos/update-schedule.dto';
@@ -42,7 +45,7 @@ export class ScheduleService implements OnApplicationBootstrap {
     private readonly condominiumMemberService: CondominiumMemberService,
     private readonly scheduleCronJobService: ScheduleCronJobService,
     private readonly schedulerRegistry: SchedulerRegistry,
-    @InjectQueue('schedule-queue') private scheduleQueue: Queue,
+    @InjectQueue(SCHEDULE_PROCESSOR) private scheduleQueue: Queue,
   ) {}
 
   async onApplicationBootstrap() {
