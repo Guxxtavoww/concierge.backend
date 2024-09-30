@@ -70,12 +70,14 @@ export class CondominiumChatGateway implements GatewayMethods {
   handleJoinRoom(client: Socket, condominium_chat_id: string) {
     client.join(condominium_chat_id);
 
+    const user_id = (client.data[DECODED_TOKEN_KEY] as DecodedTokenType).id
+
     this.server
       .to(condominium_chat_id)
-      .emit('user-joined', { userId: client.id });
+      .emit('user-joined', { user_id });
 
     this.logService.logger?.log(
-      `User ${client.id} joined room ${condominium_chat_id}`,
+      `User ${user_id} joined room ${condominium_chat_id}`,
     );
   }
 
