@@ -105,9 +105,9 @@ export class CondominiumChatGateway implements GatewayMethods {
       payload,
     );
 
-    this.server.to(roomId).emit('receive-message', message);
+    this.server.to(roomId).emit('receive-message', message.data);
 
-    return message;
+    return message.data;
   }
 
   @UseZodPipe(updateCondominiumChatMessageSchema)
@@ -121,7 +121,7 @@ export class CondominiumChatGateway implements GatewayMethods {
       payload,
     );
 
-    return message;
+    return message.data;
   }
 
   @UseZodPipe(deleteChatMessageSchema)
@@ -135,6 +135,6 @@ export class CondominiumChatGateway implements GatewayMethods {
       payload,
     );
 
-    return message;
+    return message.data;
   }
 }
