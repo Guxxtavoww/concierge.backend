@@ -8,7 +8,6 @@ import {
   type OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UseGuards } from '@nestjs/common';
 
 import { corsConfig } from 'src/config/cors.config';
 import { LogService } from 'src/lib/log/log.service';
@@ -32,7 +31,6 @@ import { CondominiumChatMessageService } from '../services/condominium-chat-mess
 
 type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect & OnGatewayInit;
 
-@UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: '/server/condominium-chat',
   cors: { origin: corsConfig.allowedWsDomains },
@@ -40,8 +38,9 @@ type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect & OnGatewayInit;
 })
 export class CondominiumChatGateway implements GatewayMethods {
   constructor(
-    private readonly condominiumChatMessageService: CondominiumChatMessageService,
     private readonly logService: LogService,
+    private readonly wsJwtGuard: WsJwtGuard,
+    private readonly condominiumChatMessageService: CondominiumChatMessageService,
   ) {}
 
   @WebSocketServer()
@@ -52,17 +51,13 @@ export class CondominiumChatGateway implements GatewayMethods {
   }
 
   async handleConnection(client: Socket) {
-    const decodedToken = client.data[DECODED_TOKEN_KEY] as DecodedTokenType;
+    const decodedToken = await this.wsJwtGuard.auth(client);
 
-    this.logService.logger?.log(
-      `Client connected: ${client.id}, User ${decodedToken?.id} connected`,
-    );
+    this.logService.logger?.log(`User ${decodedToken.id} connected`);
   }
 
   handleDisconnect(client: Socket) {
-    const decodedToken = client.data[DECODED_TOKEN_KEY] as DecodedTokenType;
-
-    this.logService.logger?.warn(`User ${decodedToken.id} disconnected`);
+    this.logService.logger?.warn(`Client ${client.id} disconnected`);
   }
 
   @SubscribeMessage('join-room')
