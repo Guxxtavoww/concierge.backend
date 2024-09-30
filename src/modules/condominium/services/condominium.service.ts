@@ -53,9 +53,12 @@ export class CondominiumService {
 
     const memberships = await this.condominiumMemberService
       .createPerfomaticCondominiumMemberQueryBuilder()
-      .where(`${condominiumMemberAlias}.condominium_id IN (:...condominiumsIds)`, {
-        condominiumsIds,
-      })
+      .where(
+        `${condominiumMemberAlias}.condominium_id IN (:...condominiumsIds)`,
+        {
+          condominiumsIds,
+        },
+      )
       .andWhere(`${condominiumMemberAlias}.user_id = :logged_in_user_id`, {
         logged_in_user_id,
       })
@@ -100,6 +103,7 @@ export class CondominiumService {
       state: '=',
       total_units: '=',
       year_built: '=',
+      manager_id: '=',
     });
 
     applyOrderByFilters(alias, queryBuilder, {

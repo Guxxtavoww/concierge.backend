@@ -10,13 +10,15 @@ import {
   optionalStringToIntegerSchema,
   optionalStringSchema,
   optionalOrderParamSchema,
+  optionalUuidSchema,
 } from 'src/shared/schemas.shared';
+import { OrderByEnum } from 'src/shared/enums.shared';
 import { isNullableValue } from 'src/utils/is-nullable-value.util';
 import { createPaginationSchema } from 'src/utils/create-pagination-schema.utils';
-import { OrderByEnum } from 'src/shared/enums.shared';
 
 export const paginateCondominiumsSchema = createPaginationSchema({
   condominium_name: optionalStringSchemaToLowerCase,
+  manager_id: optionalUuidSchema,
   description: optionalStringSchemaToLowerCase,
   address: optionalStringSchemaToLowerCase,
   city: optionalStringSchema,
@@ -130,4 +132,7 @@ export class PaginateCondominiumsDTO extends createZodDto(
     enum: OrderByEnum,
   })
   order_by_total_member_count?: OrderBy;
+
+  @ApiPropertyOptional()
+  manager_id?: string;
 }
