@@ -8,12 +8,14 @@ import {
   type OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { UseGuards } from '@nestjs/common';
 
 import { corsConfig } from 'src/config/cors.config';
 import { LogService } from 'src/lib/log/log.service';
 import { DECODED_TOKEN_KEY } from 'src/shared/decorators/decoded-token.decorator';
 
 import { UseZodPipe } from '../pipes/zod.pipe';
+import { WsJwtGuard } from '../guards/ws-jwt.guard';
 import {
   createCondominiumChatMessageSchema,
   type CreateCondominiumChatMessageType,
@@ -30,6 +32,7 @@ import { CondominiumChatMessageService } from '../services/condominium-chat-mess
 
 type GatewayMethods = OnGatewayConnection & OnGatewayDisconnect & OnGatewayInit;
 
+@UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: '/server/condominium-chat',
   cors: { origin: corsConfig.allowedWsDomains },
