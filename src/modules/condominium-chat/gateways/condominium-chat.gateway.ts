@@ -70,11 +70,9 @@ export class CondominiumChatGateway implements GatewayMethods {
   handleJoinRoom(client: Socket, condominium_chat_id: string) {
     client.join(condominium_chat_id);
 
-    const user_id = (client.data[DECODED_TOKEN_KEY] as DecodedTokenType).id
+    const user_id = (client.data[DECODED_TOKEN_KEY] as DecodedTokenType).id;
 
-    this.server
-      .to(condominium_chat_id)
-      .emit('user-joined', { user_id });
+    this.server.to(condominium_chat_id).emit('user-joined', { user_id });
 
     this.logService.logger?.log(
       `User ${user_id} joined room ${condominium_chat_id}`,
@@ -85,9 +83,9 @@ export class CondominiumChatGateway implements GatewayMethods {
   handleLeaveRoom(client: Socket, condominium_chat_id: string) {
     client.leave(condominium_chat_id);
 
-    this.server
-      .to(condominium_chat_id)
-      .emit('user-left', { userId: client.id });
+    const user_id = (client.data[DECODED_TOKEN_KEY] as DecodedTokenType).id;
+
+    this.server.to(condominium_chat_id).emit('user-left', { user_id });
 
     this.logService.logger?.log(
       `User ${client.id} left room ${condominium_chat_id}`,
