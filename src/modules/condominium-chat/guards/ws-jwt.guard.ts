@@ -1,5 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 
