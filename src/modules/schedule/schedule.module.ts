@@ -13,7 +13,7 @@ import { ScheduleInviteController } from './controllers/schedule-invite.controll
 import { ScheduleCronJobModule } from '../schedule-cron-job/schedule-cron-job.module';
 import { CondominiumMemberModule } from '../condominium-member/condominium-member.module';
 
-const providers = [ScheduleService, ScheduleInviteService];
+const providers = [ScheduleService, ScheduleInviteService, ScheduleProcessor];
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ const providers = [ScheduleService, ScheduleInviteService];
     }),
   ],
   controllers: [ScheduleController, ScheduleInviteController],
-  providers: [...providers, ScheduleProcessor],
+  providers,
   exports: providers,
 })
 export class ScheduleModule {}

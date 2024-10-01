@@ -10,7 +10,7 @@ import { ScheduleService } from '../services/schedule.service';
 export const SCHEDULE_PROCESSOR = 'schedule-queue';
 export const SCHEDULE_PROCESS_KEY = 'setup-cron-job';
 
-@Processor(SCHEDULE_PROCESSOR)
+@Processor('schedule-queue')
 export class ScheduleProcessor {
   constructor(
     private readonly logService: LogService,
