@@ -44,7 +44,7 @@ export class ScheduleService implements OnApplicationBootstrap {
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectQueue('schedule-queue') private scheduleQueue: Queue,
   ) {}
-  SCHEDULE_PROCESSOR
+  SCHEDULE_PROCESSOR;
   async onApplicationBootstrap() {
     const scheduleCronJobs =
       await this.scheduleCronJobService.loadAllCronJobs();
@@ -146,11 +146,11 @@ export class ScheduleService implements OnApplicationBootstrap {
     endCronJob.start();
 
     if (!skipSave) {
-      await this.scheduleCronJobService.saveCronJob(
-        scheduleId,
-        cronExpressionStart,
-        cronExpressionEnd,
-      );
+      await this.scheduleCronJobService.saveCronJob({
+        cron_expression_end: cronExpressionEnd,
+        cron_expression_start: cronExpressionStart,
+        schedule_id: scheduleId,
+      });
     }
   }
 

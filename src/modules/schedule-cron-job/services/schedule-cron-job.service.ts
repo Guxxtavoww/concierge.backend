@@ -8,6 +8,7 @@ import {
   scheduleCronJobAlias,
 } from '../entities/schedule-cron-job.entity';
 import type { LoadAllResponse } from '../dtos/load-all.dto';
+import type { CreateCronJobDTO } from '../dtos/create-cron-job.dto';
 import { scheduleCronJobRepository } from '../repositories/schedule-cron-job.repository';
 
 @Injectable()
@@ -27,17 +28,19 @@ export class ScheduleCronJobService {
   }
 
   async saveCronJob(
-    schedule_id: string,
-    cron_expression_start: string,
-    cron_expression_end: string,
-  ): Promise<ScheduleCronJob> {
-    const item = scheduleCronJobRepository.create({
-      cron_expression_end,
-      cron_expression_start,
-      schedule_id,
-    });
+    payload: CreateCronJobDTO | CreateCronJobDTO[],
+  ): Promise<ScheduleCronJob | ScheduleCronJob[]> {
+    const isPayloadArray = Array.isArray(payload);
 
-    return scheduleCronJobRepository.save(item);
+    if (isPayloadArray) {
+      const items = payload.map((cronJob) =>
+        scheduleCronJobRepository.create(cronJob),
+      );
+
+      return scheduleCronJobRepository.save(items);
+    }
+
+    return scheduleCronJobRepository.save(payload);
   }
 
   async deleteCronJobByScheduleId(schedule_id: string) {
