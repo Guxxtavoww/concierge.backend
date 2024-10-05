@@ -1,12 +1,10 @@
 import {
-  Entity,
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
-export class Base {
+export abstract class Base {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -16,12 +14,12 @@ export class Base {
   @UpdateDateColumn({
     type: 'timestamp',
     default: null,
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updated_at: NullableValue<string>;
 }
 
-@Entity()
-export class BaseWithIncrementalId {
+export abstract class BaseWithIncrementalId {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
