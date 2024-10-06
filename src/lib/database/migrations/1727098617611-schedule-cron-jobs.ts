@@ -26,7 +26,6 @@ export class ScheduleCronJobs1727098617611 implements MigrationInterface {
           {
             name: 'schedule_id',
             type: 'uuid',
-            isUnique: true,
           },
         ],
       }),
@@ -54,7 +53,6 @@ export class ScheduleCronJobs1727098617611 implements MigrationInterface {
       new TableIndex({
         name: 'IDX_UNIQUE_SCHEDULE_ID',
         columnNames: ['schedule_id'],
-        isUnique: true,
       }),
     );
 

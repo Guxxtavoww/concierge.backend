@@ -16,8 +16,8 @@ export class ScheduleCronJob extends BaseWithIncrementalId {
   @Column('varchar')
   cron_expression_end: string;
 
-  @Index({ unique: true })
-  @Column('uuid', { unique: true })
+  @Index()
+  @Column('uuid')
   schedule_id: string;
 
   @ManyToOne(() => Schedule, (schedule) => schedule.cron_jobs)
