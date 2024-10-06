@@ -44,7 +44,7 @@ export class ScheduleService implements OnApplicationBootstrap {
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectQueue('schedule-queue') private scheduleQueue: Queue,
   ) {}
-  SCHEDULE_PROCESSOR;
+
   async onApplicationBootstrap() {
     const scheduleCronJobs =
       await this.scheduleCronJobService.loadAllCronJobs();
