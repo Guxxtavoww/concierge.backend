@@ -10,6 +10,7 @@ import {
 } from 'src/utils/apply-query-filters.utils';
 import { PaginationService } from 'src/lib/pagination/pagination.service';
 import { NotFoundError } from 'src/lib/http-exceptions/errors/types/not-found-error';
+import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 import { CondominiumMember } from 'src/modules/condominium-member/entities/condominium-member.entity';
 import { CondominiumMemberService } from 'src/modules/condominium-member/services/condominium-member.service';
 
@@ -24,7 +25,6 @@ import type { CreateCondominiumChatType } from '../dtos/condominium-chat/create.
 import type { UpdateCondominiumChatType } from '../dtos/condominium-chat/update.dto';
 import { condominiumChatRepository } from '../repositories/condominium-chat.repository';
 import type { PaginateCondominiumChatsType } from '../dtos/condominium-chat/paginate.dto';
-import { BadRequestError } from 'src/lib/http-exceptions/errors/types/bad-request-error';
 
 @Injectable()
 export class CondominiumChatService {
